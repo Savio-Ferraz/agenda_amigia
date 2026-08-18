@@ -4,18 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agenda Amigia Educação</title>
-  <!-- Tailwind CSS -->
-  <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
-  <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
-  <link href="[https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap)" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Firebase Compat SDKs -->
-  <script src="[https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js](https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js)"></script>
-  <script src="[https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js](https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js)"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
   <script>
     tailwind.config = {
@@ -23,15 +19,6 @@
         extend: {
           fontFamily: {
             sans: ['Plus Jakarta Sans', 'sans-serif'],
-          },
-          colors: {
-            amigia: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              500: '#0284c7',
-              600: '#0369a1',
-              700: '#095180',
-            }
           }
         }
       }
@@ -39,33 +26,16 @@
   </script>
 
   <style>
-    /* Custom Scrollbars */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-    
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans h-screen flex flex-col overflow-hidden">
 
   <!-- TOP HEADER / NAVBAR -->
   <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm shrink-0">
-    <!-- Brand / Title -->
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-emerald-400 p-0.5 shadow-md flex items-center justify-center overflow-hidden">
         <img src="logo.png" alt="Amigia Logo" class="w-full h-full object-cover rounded-[14px]" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'bg-white w-full h-full rounded-[14px] flex items-center justify-center\'><i class=\'fa-solid fa-heart text-transparent bg-clip-text bg-gradient-to-tr from-rose-500 via-amber-500 to-blue-600 text-lg\'></i></div>';">
@@ -78,27 +48,16 @@
       </div>
     </div>
 
-    <!-- Navigation & Date Title -->
     <div class="flex items-center gap-2">
-      <button id="btnToday" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 transition shadow-sm">
-        Hoje
-      </button>
+      <button id="btnToday" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 transition shadow-sm">Hoje</button>
       <div class="flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200">
-        <button id="btnPrev" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition shadow-xs">
-          <i class="fa-solid fa-chevron-left text-xs"></i>
-        </button>
-        <button id="btnNext" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition shadow-xs">
-          <i class="fa-solid fa-chevron-right text-xs"></i>
-        </button>
+        <button id="btnPrev" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+        <button id="btnNext" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition"><i class="fa-solid fa-chevron-right text-xs"></i></button>
       </div>
-      <h2 id="currentPeriodTitle" class="text-lg font-bold text-slate-800 ml-2 min-w-[180px]">
-        Carregando...
-      </h2>
+      <h2 id="currentPeriodTitle" class="text-lg font-bold text-slate-800 ml-2 min-w-[180px]">Carregando...</h2>
     </div>
 
-    <!-- Right Controls: View Switcher, User Badge, New Event -->
     <div class="flex items-center gap-3">
-      <!-- View selector -->
       <div class="bg-slate-100 p-1 rounded-xl border border-slate-200 flex text-xs font-semibold">
         <button data-view="month" class="view-btn px-3 py-1.5 rounded-lg bg-white shadow-xs text-blue-600">Mês</button>
         <button data-view="week" class="view-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900">Semana</button>
@@ -106,14 +65,12 @@
         <button data-view="agenda" class="view-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900">Lista</button>
       </div>
 
-      <!-- Current User Input / Badge -->
-      <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200" title="Quem está agendando no momento">
+      <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
         <i class="fa-solid fa-user text-slate-500 text-xs"></i>
-        <input type="text" id="globalUserName" placeholder="Seu Nome..." class="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none w-28 border-b border-transparent focus:border-blue-500">
+        <input type="text" id="globalUserName" placeholder="Seu Nome..." class="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none w-28">
       </div>
 
-      <!-- Create Event Button -->
-      <button id="btnNewEvent" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-xl shadow-sm hover:shadow transition flex items-center gap-2">
+      <button id="btnNewEvent" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-2">
         <i class="fa-solid fa-plus"></i>
         <span>Novo Agendamento</span>
       </button>
@@ -122,11 +79,7 @@
 
   <!-- MAIN BODY LAYOUT -->
   <div class="flex flex-1 overflow-hidden">
-    
-    <!-- LEFT SIDEBAR -->
     <aside class="w-72 bg-white border-r border-slate-200 p-4 flex flex-col gap-6 shrink-0 overflow-y-auto">
-      
-      <!-- Mini Calendar -->
       <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
         <div class="flex items-center justify-between mb-3 px-1">
           <span id="miniMonthTitle" class="font-bold text-sm text-slate-800"></span>
@@ -135,123 +88,90 @@
             <button id="miniNext" class="text-slate-500 hover:text-slate-800 p-1"><i class="fa-solid fa-chevron-right text-xs"></i></button>
           </div>
         </div>
-        
         <div class="calendar-grid text-center text-xs text-slate-400 font-semibold mb-1">
           <div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div>
         </div>
-        <div id="miniCalendarDays" class="calendar-grid text-xs gap-y-1">
-          <!-- Populated dynamically -->
-        </div>
+        <div id="miniCalendarDays" class="calendar-grid text-xs gap-y-1"></div>
       </div>
 
-      <!-- Search Box -->
       <div class="relative">
         <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-        <input type="text" id="searchInput" placeholder="Buscar compromisso ou pessoa..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="text" id="searchInput" placeholder="Buscar compromisso..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-xs focus:outline-none">
       </div>
 
-      <!-- Category Filter -->
       <div>
         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categorias</h3>
         <div class="space-y-1.5" id="categoryFilters">
-          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg">
-            <input type="checkbox" value="all" checked class="rounded text-blue-600 focus:ring-blue-500 filter-checkbox">
+          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer p-1.5 rounded-lg">
+            <input type="checkbox" value="all" checked class="rounded text-blue-600 filter-checkbox">
             <span class="w-3 h-3 rounded-full bg-slate-400"></span>
             <span class="font-medium">Todas</span>
           </label>
-          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg">
-            <input type="checkbox" value="Atendimento" checked class="rounded text-blue-600 focus:ring-blue-500 filter-checkbox">
+          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer p-1.5 rounded-lg">
+            <input type="checkbox" value="Atendimento" checked class="rounded text-blue-600 filter-checkbox">
             <span class="w-3 h-3 rounded-full bg-blue-500"></span>
             <span>Atendimento Pedagógico</span>
           </label>
-          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg">
-            <input type="checkbox" value="Reunião" checked class="rounded text-blue-600 focus:ring-blue-500 filter-checkbox">
+          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer p-1.5 rounded-lg">
+            <input type="checkbox" value="Reunião" checked class="rounded text-blue-600 filter-checkbox">
             <span class="w-3 h-3 rounded-full bg-amber-500"></span>
             <span>Reunião de Pais / Equipe</span>
           </label>
-          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg">
-            <input type="checkbox" value="Aula/Atividade" checked class="rounded text-blue-600 focus:ring-blue-500 filter-checkbox">
+          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer p-1.5 rounded-lg">
+            <input type="checkbox" value="Aula/Atividade" checked class="rounded text-blue-600 filter-checkbox">
             <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
             <span>Aula / Atividade</span>
           </label>
-          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg">
-            <input type="checkbox" value="Outros" checked class="rounded text-blue-600 focus:ring-blue-500 filter-checkbox">
+          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer p-1.5 rounded-lg">
+            <input type="checkbox" value="Outros" checked class="rounded text-blue-600 filter-checkbox">
             <span class="w-3 h-3 rounded-full bg-purple-500"></span>
             <span>Outros</span>
           </label>
         </div>
       </div>
-
-      <!-- Quick Info Box -->
-      <div class="mt-auto bg-blue-50 p-3.5 rounded-2xl border border-blue-100 text-xs text-blue-900">
-        <div class="font-bold flex items-center gap-2 mb-1">
-          <i class="fa-solid fa-circle-info text-blue-600"></i>
-          <span>Sincronização em Tempo Real</span>
-        </div>
-        <p class="text-blue-700 leading-relaxed text-[11px]">
-          Qualquer alteração feita por você ou outra pessoa aparecerá instantaneamente para todos os usuários.
-        </p>
-      </div>
-
     </aside>
 
-    <!-- MAIN CALENDAR CONTAINER -->
     <main class="flex-1 bg-white flex flex-col overflow-hidden relative" id="calendarMain">
-      <!-- Views will be dynamically injected here -->
       <div id="viewContainer" class="h-full w-full overflow-y-auto"></div>
     </main>
-
   </div>
 
   <!-- EVENT FORM MODAL -->
-  <div id="eventModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 hidden transition-opacity">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg p-6 relative animate-in fade-in zoom-in-95 duration-150">
-      <button id="btnCloseModal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2 rounded-full hover:bg-slate-100">
-        <i class="fa-solid fa-xmark text-lg"></i>
-      </button>
-
+  <div id="eventModal" class="fixed inset-0 bg-slate-900/40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg p-6 relative">
+      <button id="btnCloseModal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
       <h3 id="modalTitle" class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
         <i class="fa-solid fa-calendar-plus text-blue-600"></i>
         <span>Agendar Compromisso</span>
       </h3>
-
       <form id="eventForm" class="space-y-4">
         <input type="hidden" id="eventId">
-
-        <!-- Title -->
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Título do Compromisso *</label>
-          <input type="text" id="inputTitle" required placeholder="Ex: Reunião com responsáveis do aluno Pedro" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Título do Compromisso *</label>
+          <input type="text" id="inputTitle" required placeholder="Ex: Reunião pedagógica" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none">
         </div>
-
-        <!-- Date & Times -->
         <div class="grid grid-cols-3 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Data *</label>
-            <input type="date" id="inputDate" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Data *</label>
+            <input type="date" id="inputDate" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2 py-2 text-sm">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Hora Início *</label>
-            <input type="time" id="inputStartTime" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Hora Início *</label>
+            <input type="time" id="inputStartTime" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2 py-2 text-sm">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Hora Fim *</label>
-            <input type="time" id="inputEndTime" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Hora Fim *</label>
+            <input type="time" id="inputEndTime" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2 py-2 text-sm">
           </div>
         </div>
-
-        <!-- Creator & Category -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Quem está Agendando? *</label>
-            <div class="relative">
-              <i class="fa-solid fa-user-pen absolute left-3 top-3 text-slate-400 text-xs"></i>
-              <input type="text" id="inputCreatedBy" required placeholder="Seu Nome" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Quem está Agendando? *</label>
+            <input type="text" id="inputCreatedBy" required placeholder="Seu Nome" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Categoria *</label>
-            <select id="inputCategory" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Categoria *</label>
+            <select id="inputCategory" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
               <option value="Atendimento">Atendimento Pedagógico</option>
               <option value="Reunião">Reunião de Pais / Equipe</option>
               <option value="Aula/Atividade">Aula / Atividade</option>
@@ -259,107 +179,56 @@
             </select>
           </div>
         </div>
-
-        <!-- Description -->
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Observações / Detalhes</label>
-          <textarea id="inputDescription" rows="3" placeholder="Pauta da reunião, sala ou informações adicionais..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observações</label>
+          <textarea id="inputDescription" rows="3" placeholder="Detalhes adicionais..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm"></textarea>
         </div>
-
-        <!-- Action Buttons -->
         <div class="flex items-center justify-between pt-2">
-          <button type="button" id="btnDeleteEvent" class="text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-xl text-xs font-bold transition hidden">
-            <i class="fa-solid fa-trash mr-1"></i> Excluir
-          </button>
+          <button type="button" id="btnDeleteEvent" class="text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-xl text-xs font-bold hidden"><i class="fa-solid fa-trash mr-1"></i> Excluir</button>
           <div class="flex items-center gap-2 ml-auto">
-            <button type="button" id="btnCancelModal" class="px-4 py-2 border border-slate-300 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
-              Cancelar
-            </button>
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-5 py-2 rounded-xl shadow-sm transition">
-              Salvar Compromisso
-            </button>
+            <button type="button" id="btnCancelModal" class="px-4 py-2 border border-slate-300 rounded-xl text-sm font-semibold text-slate-600">Cancelar</button>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-5 py-2 rounded-xl">Salvar</button>
           </div>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- EVENT DETAILS VIEW MODAL -->
-  <div id="detailsModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 hidden">
+  <!-- EVENT DETAILS MODAL -->
+  <div id="detailsModal" class="fixed inset-0 bg-slate-900/40 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-6 relative">
-      <button id="btnCloseDetails" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100">
-        <i class="fa-solid fa-xmark text-lg"></i>
-      </button>
-
-      <div class="flex items-center gap-2 mb-2">
-        <span id="detailCategoryBadge" class="text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wider"></span>
-      </div>
-
+      <button id="btnCloseDetails" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <span id="detailCategoryBadge" class="text-xs px-2.5 py-1 rounded-full font-bold uppercase mb-2 inline-block"></span>
       <h3 id="detailTitle" class="text-xl font-bold text-slate-900 mb-4"></h3>
-
       <div class="space-y-3 text-sm text-slate-600 mb-6">
-        <div class="flex items-center gap-3">
-          <i class="fa-regular fa-calendar text-slate-400 w-4 text-center"></i>
-          <span id="detailDate"></span>
-        </div>
-        <div class="flex items-center gap-3">
-          <i class="fa-regular fa-clock text-slate-400 w-4 text-center"></i>
-          <span id="detailTime"></span>
-        </div>
-        <div class="flex items-center gap-3">
-          <i class="fa-solid fa-user-check text-blue-600 w-4 text-center"></i>
-          <div>
-            <span class="text-xs text-slate-400 block">Agendado por:</span>
-            <span id="detailCreatedBy" class="font-semibold text-slate-800"></span>
-          </div>
-        </div>
-        <div id="detailDescContainer" class="pt-2 border-t border-slate-100">
-          <span class="text-xs text-slate-400 block mb-1">Observações:</span>
-          <p id="detailDescription" class="text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-slate-700 whitespace-pre-wrap"></p>
-        </div>
+        <div class="flex items-center gap-3"><i class="fa-regular fa-calendar text-slate-400 w-4"></i><span id="detailDate"></span></div>
+        <div class="flex items-center gap-3"><i class="fa-regular fa-clock text-slate-400 w-4"></i><span id="detailTime"></span></div>
+        <div class="flex items-center gap-3"><i class="fa-solid fa-user-check text-blue-600 w-4"></i><div><span class="text-xs text-slate-400 block">Agendado por:</span><span id="detailCreatedBy" class="font-semibold text-slate-800"></span></div></div>
+        <div id="detailDescContainer" class="pt-2 border-t border-slate-100"><span class="text-xs text-slate-400 block mb-1">Observações:</span><p id="detailDescription" class="text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-slate-700 whitespace-pre-wrap"></p></div>
       </div>
-
       <div class="flex justify-end gap-2">
-        <button id="btnEditFromDetails" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
-          <i class="fa-solid fa-pen-to-square mr-1"></i> Editar
-        </button>
-        <button id="btnDeleteFromDetails" class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition">
-          <i class="fa-solid fa-trash mr-1"></i> Excluir
-        </button>
+        <button id="btnEditFromDetails" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"><i class="fa-solid fa-pen-to-square mr-1"></i> Editar</button>
+        <button id="btnDeleteFromDetails" class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold"><i class="fa-solid fa-trash mr-1"></i> Excluir</button>
       </div>
     </div>
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
   <script>
-    const firebaseConfig = {
-      databaseURL: "[https://agenda-amigia-default-rtdb.firebaseio.com](https://agenda-amigia-default-rtdb.firebaseio.com)"
-    };
-
-    let db = null;
-    let eventsRef = null;
-
+    const firebaseConfig = { databaseURL: "https://agenda-amigia-default-rtdb.firebaseio.com" };
+    let db = null, eventsRef = null;
     try {
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
       db = firebase.database();
       eventsRef = db.ref("compromissos");
-    } catch(e) {
-      console.warn("Firebase não configurado ou rodando em modo offline.", e);
-    }
+    } catch(e) { console.warn("Modo offline ativo."); }
 
-    let events = [];
-    let currentDate = new Date();
-    let selectedMiniDate = new Date();
-    let currentView = 'month';
-    let currentActiveEvent = null;
+    let events = [], currentDate = new Date(), selectedMiniDate = new Date(), currentView = 'month', currentActiveEvent = null;
 
     const categoryStyles = {
-      'Atendimento': { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-300', dot: 'bg-blue-500' },
-      'Reunião': { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-300', dot: 'bg-amber-500' },
-      'Aula/Atividade': { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-300', dot: 'bg-emerald-500' },
-      'Outros': { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-300', dot: 'bg-purple-500' }
+      'Atendimento': { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-300' },
+      'Reunião': { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-300' },
+      'Aula/Atividade': { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-300' },
+      'Outros': { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-300' }
     };
 
     const viewContainer = document.getElementById('viewContainer');
@@ -368,22 +237,15 @@
     const miniCalendarDays = document.getElementById('miniCalendarDays');
     const globalUserNameInput = document.getElementById('globalUserName');
 
-    const savedName = localStorage.getItem('amigia_user_name') || '';
-    globalUserNameInput.value = savedName;
-    globalUserNameInput.addEventListener('input', (e) => {
-      localStorage.setItem('amigia_user_name', e.target.value);
-    });
+    globalUserNameInput.value = localStorage.getItem('amigia_user_name') || '';
+    globalUserNameInput.addEventListener('input', (e) => localStorage.setItem('amigia_user_name', e.target.value));
 
     function initDataSync() {
       if (eventsRef) {
         eventsRef.on('value', (snapshot) => {
           const data = snapshot.val();
           events = [];
-          if (data) {
-            Object.keys(data).forEach(key => {
-              events.push({ id: key, ...data[key] });
-            });
-          }
+          if (data) Object.keys(data).forEach(key => events.push({ id: key, ...data[key] }));
           renderCurrentView();
         });
       } else {
@@ -395,11 +257,8 @@
 
     function saveEventToStorage(eventData, id = null) {
       if (eventsRef) {
-        if (id) {
-          eventsRef.child(id).update(eventData);
-        } else {
-          eventsRef.push(eventData);
-        }
+        if (id) eventsRef.child(id).update(eventData);
+        else eventsRef.push(eventData);
       } else {
         if (id) {
           const index = events.findIndex(e => e.id === id);
@@ -413,9 +272,8 @@
     }
 
     function deleteEventFromStorage(id) {
-      if (eventsRef) {
-        eventsRef.child(id).remove();
-      } else {
+      if (eventsRef) eventsRef.child(id).remove();
+      else {
         events = events.filter(e => e.id !== id);
         localStorage.setItem('amigia_events', JSON.stringify(events));
         renderCurrentView();
@@ -425,18 +283,12 @@
     function renderCurrentView() {
       updatePeriodTitle();
       renderMiniCalendar();
-
       const filteredEvents = getFilteredEvents();
 
-      if (currentView === 'month') {
-        renderMonthView(filteredEvents);
-      } else if (currentView === 'week') {
-        renderWeekView(filteredEvents);
-      } else if (currentView === 'day') {
-        renderDayView(filteredEvents);
-      } else if (currentView === 'agenda') {
-        renderAgendaView(filteredEvents);
-      }
+      if (currentView === 'month') renderMonthView(filteredEvents);
+      else if (currentView === 'week') renderWeekView(filteredEvents);
+      else if (currentView === 'day') renderDayView(filteredEvents);
+      else if (currentView === 'agenda') renderAgendaView(filteredEvents);
     }
 
     function getFilteredEvents() {
@@ -447,17 +299,14 @@
         const matchesCategory = checkedCategories.includes('all') || checkedCategories.includes(e.category);
         const matchesSearch = !searchTerm || 
           (e.title && e.title.toLowerCase().includes(searchTerm)) || 
-          (e.createdBy && e.createdBy.toLowerCase().includes(searchTerm)) ||
-          (e.description && e.description.toLowerCase().includes(searchTerm));
-
+          (e.createdBy && e.createdBy.toLowerCase().includes(searchTerm));
         return matchesCategory && matchesSearch;
       });
     }
 
     function updatePeriodTitle() {
       const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-      
-      if (currentView === 'month') {
+      if (currentView === 'month' || currentView === 'agenda') {
         currentPeriodTitle.textContent = `${months[currentDate.getMonth()]} de ${currentDate.getFullYear()}`;
       } else if (currentView === 'day') {
         currentPeriodTitle.textContent = `${currentDate.getDate()} de ${months[currentDate.getMonth()]} de ${currentDate.getFullYear()}`;
@@ -465,271 +314,128 @@
         const startOfWeek = getStartOfWeek(currentDate);
         const endOfWeek = new Date(startOfWeek);
         endOfWeek.setDate(endOfWeek.getDate() + 6);
-        currentPeriodTitle.textContent = `${startOfWeek.getDate()} ${months[startOfWeek.getMonth()].substring(0,3)} - ${endOfWeek.getDate()} ${months[endOfWeek.getMonth()].substring(0,3)} ${endOfWeek.getFullYear()}`;
-      } else if (currentView === 'agenda') {
-        currentPeriodTitle.textContent = `Agenda - ${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+        currentPeriodTitle.textContent = `${startOfWeek.getDate()} ${months[startOfWeek.getMonth()].substring(0,3)} - ${endOfWeek.getDate()} ${months[endOfWeek.getMonth()].substring(0,3)}`;
       }
     }
 
     function navigatePeriod(direction) {
-      if (currentView === 'month' || currentView === 'agenda') {
-        currentDate.setMonth(currentDate.getMonth() + direction);
-      } else if (currentView === 'week') {
-        currentDate.setDate(currentDate.getDate() + (direction * 7));
-      } else if (currentView === 'day') {
-        currentDate.setDate(currentDate.getDate() + direction);
-      }
+      if (currentView === 'month' || currentView === 'agenda') currentDate.setMonth(currentDate.getMonth() + direction);
+      else if (currentView === 'week') currentDate.setDate(currentDate.getDate() + (direction * 7));
+      else if (currentView === 'day') currentDate.setDate(currentDate.getDate() + direction);
       renderCurrentView();
     }
 
     function renderMonthView(filteredEvents) {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
-
       const firstDayOfMonth = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const daysInPrevMonth = new Date(year, month, 0).getDate();
 
-      let html = `
-        <div class="h-full flex flex-col">
-          <div class="grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-center py-2 text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">
-            <div>DOM</div><div>SEG</div><div>TER</div><div>QUA</div><div>QUI</div><div>SEX</div><div>SÁB</div>
-          </div>
-          <div class="grid grid-cols-7 flex-1 auto-rows-fr bg-slate-200 gap-px overflow-y-auto">
-      `;
+      let html = `<div class="h-full flex flex-col"><div class="grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-center py-2 text-xs font-bold text-slate-500 uppercase"><div>DOM</div><div>SEG</div><div>TER</div><div>QUA</div><div>QUI</div><div>SEX</div><div>SÁB</div></div><div class="grid grid-cols-7 flex-1 auto-rows-fr bg-slate-200 gap-px overflow-y-auto">`;
 
       const todayStr = formatDate(new Date());
 
       for (let i = firstDayOfMonth - 1; i >= 0; i--) {
-        const prevDay = daysInPrevMonth - i;
-        html += `<div class="bg-slate-50/50 p-1.5 min-h-[90px] text-slate-400 text-xs font-semibold">${prevDay}</div>`;
+        html += `<div class="bg-slate-50/50 p-1.5 min-h-[90px] text-slate-400 text-xs font-semibold">${daysInPrevMonth - i}</div>`;
       }
 
       for (let day = 1; day <= daysInMonth; day++) {
-        const dayDate = new Date(year, month, day);
-        const dateStr = formatDate(dayDate);
+        const dateStr = formatDate(new Date(year, month, day));
         const isToday = dateStr === todayStr;
+        const dayEvents = filteredEvents.filter(e => e.date === dateStr).sort((a, b) => a.startTime.localeCompare(b.startTime));
 
-        const dayEvents = filteredEvents.filter(e => e.date === dateStr);
-        dayEvents.sort((a, b) => a.startTime.localeCompare(b.startTime));
-
-        html += `
-          <div class="bg-white p-1.5 min-h-[90px] flex flex-col hover:bg-slate-50 transition cursor-pointer group" onclick="openNewEventModal('${dateStr}')">
-            <div class="flex items-center justify-between mb-1">
-              <span class="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center ${isToday ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-700'}">
-                ${day}
-              </span>
-              <span class="text-[10px] text-slate-400 group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition">+ Criar</span>
-            </div>
-            
-            <div class="space-y-1 overflow-y-auto max-h-[85px] pr-0.5">
-        `;
+        html += `<div class="bg-white p-1.5 min-h-[90px] flex flex-col hover:bg-slate-50 transition cursor-pointer group" onclick="openNewEventModal('${dateStr}')"><div class="flex items-center justify-between mb-1"><span class="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center ${isToday ? 'bg-blue-600 text-white' : 'text-slate-700'}">${day}</span><span class="text-[10px] text-slate-400 group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition">+ Criar</span></div><div class="space-y-1 overflow-y-auto max-h-[85px]">`;
 
         dayEvents.forEach(ev => {
           const style = categoryStyles[ev.category] || categoryStyles['Outros'];
-          html += `
-            <div onclick="event.stopPropagation(); showEventDetails('${ev.id}')" 
-                 class="${style.bg} ${style.text} ${style.border} border border-l-4 rounded-md px-1.5 py-1 text-[11px] leading-tight font-medium shadow-xs truncate hover:brightness-95 transition">
-              <div class="font-bold truncate">${ev.startTime} - ${ev.title}</div>
-              <div class="text-[9px] opacity-80 truncate"><i class="fa-solid fa-user text-[8px] mr-0.5"></i>${ev.createdBy || 'Anônimo'}</div>
-            </div>
-          `;
+          html += `<div onclick="event.stopPropagation(); showEventDetails('${ev.id}')" class="${style.bg} ${style.text} ${style.border} border border-l-4 rounded px-1.5 py-1 text-[11px] font-medium truncate"><div class="font-bold truncate">${ev.startTime} - ${ev.title}</div><div class="text-[9px] opacity-80 truncate"><i class="fa-solid fa-user text-[8px]"></i> ${ev.createdBy || 'Anônimo'}</div></div>`;
         });
 
-        html += `
-            </div>
-          </div>
-        `;
+        html += `</div></div>`;
       }
 
       const totalCells = firstDayOfMonth + daysInMonth;
       const nextDays = (7 - (totalCells % 7)) % 7;
-      for (let day = 1; day <= nextDays; day++) {
-        html += `<div class="bg-slate-50/50 p-1.5 min-h-[90px] text-slate-400 text-xs font-semibold">${day}</div>`;
-      }
+      for (let day = 1; day <= nextDays; day++) html += `<div class="bg-slate-50/50 p-1.5 min-h-[90px] text-slate-400 text-xs font-semibold">${day}</div>`;
 
-      html += `
-          </div>
-        </div>
-      `;
-
+      html += `</div></div>`;
       viewContainer.innerHTML = html;
     }
 
     function renderWeekView(filteredEvents) {
       const startOfWeek = getStartOfWeek(currentDate);
-      const weekDays = [];
-      const todayStr = formatDate(new Date());
-
-      for (let i = 0; i < 7; i++) {
+      const weekDays = Array.from({length: 7}, (_, i) => {
         const d = new Date(startOfWeek);
         d.setDate(d.getDate() + i);
-        weekDays.push(d);
-      }
-
-      let html = `
-        <div class="h-full flex flex-col overflow-y-auto">
-          <div class="grid grid-cols-8 border-b border-slate-200 bg-slate-50 sticky top-0 z-10 text-center py-2 text-xs font-bold text-slate-600 border-r">
-            <div class="py-1">Hora</div>
-      `;
-
-      const dayNames = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
-      weekDays.forEach((d, idx) => {
-        const dateStr = formatDate(d);
-        const isToday = dateStr === todayStr;
-        html += `
-          <div class="py-1 ${isToday ? 'bg-blue-50/80 rounded-lg text-blue-700' : ''}">
-            <div>${dayNames[idx]}</div>
-            <div class="text-base font-bold">${d.getDate()}</div>
-          </div>
-        `;
+        return d;
       });
 
+      let html = `<div class="h-full flex flex-col overflow-y-auto"><div class="grid grid-cols-8 border-b border-slate-200 bg-slate-50 sticky top-0 z-10 text-center py-2 text-xs font-bold text-slate-600"><div class="py-1">Hora</div>`;
+      const dayNames = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+
+      weekDays.forEach((d, idx) => {
+        const isToday = formatDate(d) === formatDate(new Date());
+        html += `<div class="py-1 ${isToday ? 'bg-blue-50 text-blue-700 rounded-lg' : ''}"><div>${dayNames[idx]}</div><div class="text-base font-bold">${d.getDate()}</div></div>`;
+      });
       html += `</div>`;
 
       for (let hour = 7; hour <= 20; hour++) {
         const timeLabel = `${hour.toString().padStart(2, '0')}:00`;
-
-        html += `
-          <div class="grid grid-cols-8 border-b border-slate-100 min-h-[60px]">
-            <div class="p-2 text-[11px] font-semibold text-slate-400 text-center border-r border-slate-100 bg-slate-50/50">${timeLabel}</div>
-        `;
+        html += `<div class="grid grid-cols-8 border-b border-slate-100 min-h-[60px]"><div class="p-2 text-[11px] font-semibold text-slate-400 text-center border-r border-slate-100 bg-slate-50/50">${timeLabel}</div>`;
 
         weekDays.forEach(d => {
           const dateStr = formatDate(d);
-          const cellEvents = filteredEvents.filter(e => {
-            if (e.date !== dateStr) return false;
-            const eventHour = parseInt(e.startTime.split(':')[0]);
-            return eventHour === hour;
-          });
+          const cellEvents = filteredEvents.filter(e => e.date === dateStr && parseInt(e.startTime.split(':')[0]) === hour);
 
-          html += `
-            <div class="border-r border-slate-100 p-1 relative hover:bg-slate-50 transition cursor-pointer" onclick="openNewEventModal('${dateStr}', '${timeLabel}')">
-          `;
-
+          html += `<div class="border-r border-slate-100 p-1 hover:bg-slate-50 transition cursor-pointer" onclick="openNewEventModal('${dateStr}', '${timeLabel}')">`;
           cellEvents.forEach(ev => {
             const style = categoryStyles[ev.category] || categoryStyles['Outros'];
-            html += `
-              <div onclick="event.stopPropagation(); showEventDetails('${ev.id}')" 
-                   class="${style.bg} ${style.text} ${style.border} border border-l-4 rounded-lg p-1.5 mb-1 text-xs shadow-xs hover:brightness-95 transition">
-                <div class="font-bold truncate">${ev.title}</div>
-                <div class="text-[10px] opacity-80">${ev.startTime} - ${ev.endTime}</div>
-                <div class="text-[10px] font-semibold mt-0.5"><i class="fa-solid fa-user text-[8px]"></i> ${ev.createdBy}</div>
-              </div>
-            `;
+            html += `<div onclick="event.stopPropagation(); showEventDetails('${ev.id}')" class="${style.bg} ${style.text} ${style.border} border border-l-4 rounded-lg p-1.5 mb-1 text-xs"><div class="font-bold truncate">${ev.title}</div><div class="text-[10px] opacity-80">${ev.startTime} - ${ev.endTime}</div></div>`;
           });
-
           html += `</div>`;
         });
-
         html += `</div>`;
       }
-
       html += `</div>`;
       viewContainer.innerHTML = html;
     }
 
     function renderDayView(filteredEvents) {
       const dateStr = formatDate(currentDate);
-      const dayEvents = filteredEvents.filter(e => e.date === dateStr);
-      dayEvents.sort((a, b) => a.startTime.localeCompare(b.startTime));
+      const dayEvents = filteredEvents.filter(e => e.date === dateStr).sort((a, b) => a.startTime.localeCompare(b.startTime));
 
-      let html = `
-        <div class="h-full flex flex-col p-6 overflow-y-auto max-w-4xl mx-auto">
-          <div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-200">
-            <div>
-              <h3 class="text-xl font-bold text-slate-900">${currentDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h3>
-              <p class="text-xs text-slate-500">${dayEvents.length} compromisso(s) agendado(s) para este dia</p>
-            </div>
-            <button onclick="openNewEventModal('${dateStr}')" class="bg-blue-600 text-white font-semibold text-xs px-3.5 py-2 rounded-xl hover:bg-blue-700 shadow-sm transition">
-              + Novo Neste Dia
-            </button>
-          </div>
-      `;
+      let html = `<div class="h-full flex flex-col p-6 overflow-y-auto max-w-4xl mx-auto"><div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-200"><div><h3 class="text-xl font-bold text-slate-900">${currentDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h3><p class="text-xs text-slate-500">${dayEvents.length} compromisso(s)</p></div><button onclick="openNewEventModal('${dateStr}')" class="bg-blue-600 text-white font-semibold text-xs px-3.5 py-2 rounded-xl">+ Novo Neste Dia</button></div>`;
 
       if (dayEvents.length === 0) {
-        html += `
-          <div class="text-center py-16 text-slate-400">
-            <i class="fa-regular fa-calendar-xmark text-4xl mb-3"></i>
-            <p class="text-sm font-semibold">Nenhum compromisso marcado para este dia.</p>
-          </div>
-        `;
+        html += `<div class="text-center py-16 text-slate-400"><i class="fa-regular fa-calendar-xmark text-4xl mb-3"></i><p class="text-sm font-semibold">Nenhum compromisso marcado.</p></div>`;
       } else {
         html += `<div class="space-y-3">`;
         dayEvents.forEach(ev => {
           const style = categoryStyles[ev.category] || categoryStyles['Outros'];
-          html += `
-            <div onclick="showEventDetails('${ev.id}')" 
-                 class="${style.bg} ${style.border} border border-l-4 rounded-2xl p-4 shadow-xs hover:shadow-md transition cursor-pointer flex items-center justify-between">
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-xs font-bold px-2 py-0.5 rounded-md bg-white/80 ${style.text}">${ev.category}</span>
-                  <span class="text-xs font-bold text-slate-700"><i class="fa-regular fa-clock mr-1"></i>${ev.startTime} até ${ev.endTime}</span>
-                </div>
-                <h4 class="text-base font-bold text-slate-900 mb-1">${ev.title}</h4>
-                <div class="text-xs text-slate-600 flex items-center gap-2">
-                  <span><i class="fa-solid fa-user-pen text-blue-600 mr-1"></i>Agendado por: <strong>${ev.createdBy}</strong></span>
-                </div>
-              </div>
-              <i class="fa-solid fa-chevron-right text-slate-400"></i>
-            </div>
-          `;
+          html += `<div onclick="showEventDetails('${ev.id}')" class="${style.bg} ${style.border} border border-l-4 rounded-2xl p-4 shadow-xs hover:shadow-md transition cursor-pointer flex items-center justify-between"><div><div class="flex items-center gap-2 mb-1"><span class="text-xs font-bold px-2 py-0.5 rounded bg-white/80 ${style.text}">${ev.category}</span><span class="text-xs font-bold text-slate-700">${ev.startTime} até ${ev.endTime}</span></div><h4 class="text-base font-bold text-slate-900 mb-1">${ev.title}</h4><div class="text-xs text-slate-600">Agendado por: <strong>${ev.createdBy}</strong></div></div><i class="fa-solid fa-chevron-right text-slate-400"></i></div>`;
         });
         html += `</div>`;
       }
-
       html += `</div>`;
       viewContainer.innerHTML = html;
     }
 
     function renderAgendaView(filteredEvents) {
-      const sortedEvents = [...filteredEvents].sort((a, b) => {
-        if (a.date !== b.date) return a.date.localeCompare(b.date);
-        return a.startTime.localeCompare(b.startTime);
-      });
+      const sortedEvents = [...filteredEvents].sort((a, b) => a.date !== b.date ? a.date.localeCompare(b.date) : a.startTime.localeCompare(b.startTime));
 
-      let html = `
-        <div class="h-full p-6 overflow-y-auto max-w-4xl mx-auto">
-          <h3 class="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">Lista Geral de Compromissos</h3>
-      `;
+      let html = `<div class="h-full p-6 overflow-y-auto max-w-4xl mx-auto"><h3 class="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">Lista Geral de Compromissos</h3>`;
 
       if (sortedEvents.length === 0) {
-        html += `
-          <div class="text-center py-16 text-slate-400">
-            <i class="fa-solid fa-list-check text-4xl mb-3"></i>
-            <p class="text-sm font-semibold">Nenhum compromisso encontrado.</p>
-          </div>
-        `;
+        html += `<div class="text-center py-16 text-slate-400"><i class="fa-solid fa-list-check text-4xl mb-3"></i><p class="text-sm font-semibold">Nenhum compromisso encontrado.</p></div>`;
       } else {
         html += `<div class="space-y-3">`;
         sortedEvents.forEach(ev => {
           const style = categoryStyles[ev.category] || categoryStyles['Outros'];
-          const dateObj = new Date(ev.date + 'T00:00:00');
-          const dateFormatted = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', weekday: 'short' });
-
-          html += `
-            <div onclick="showEventDetails('${ev.id}')" class="bg-white border border-slate-200 hover:border-blue-400 rounded-2xl p-4 shadow-2xs hover:shadow-md transition cursor-pointer flex items-center justify-between">
-              <div class="flex items-center gap-4">
-                <div class="bg-slate-100 rounded-xl p-3 text-center min-w-[90px]">
-                  <div class="text-xs font-bold text-blue-600 uppercase">${dateFormatted.split(',')[0]}</div>
-                  <div class="text-sm font-bold text-slate-800">${ev.date.split('-').reverse().slice(0,2).join('/')}</div>
-                </div>
-                <div>
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="${style.bg} ${style.text} text-[10px] font-bold px-2 py-0.5 rounded-full">${ev.category}</span>
-                    <span class="text-xs font-semibold text-slate-500"><i class="fa-regular fa-clock mr-1"></i>${ev.startTime} - ${ev.endTime}</span>
-                  </div>
-                  <h4 class="text-sm font-bold text-slate-900">${ev.title}</h4>
-                  <span class="text-xs text-slate-500">Agendado por: <strong class="text-slate-700">${ev.createdBy}</strong></span>
-                </div>
-              </div>
-              <i class="fa-solid fa-chevron-right text-slate-400"></i>
-            </div>
-          `;
+          html += `<div onclick="showEventDetails('${ev.id}')" class="bg-white border border-slate-200 rounded-2xl p-4 hover:shadow-md transition cursor-pointer flex items-center justify-between"><div class="flex items-center gap-4"><div class="bg-slate-100 rounded-xl p-3 text-center min-w-[90px]"><div class="text-sm font-bold text-slate-800">${ev.date.split('-').reverse().slice(0,2).join('/')}</div></div><div><div class="flex items-center gap-2 mb-1"><span class="${style.bg} ${style.text} text-[10px] font-bold px-2 py-0.5 rounded-full">${ev.category}</span><span class="text-xs font-semibold text-slate-500">${ev.startTime} - ${ev.endTime}</span></div><h4 class="text-sm font-bold text-slate-900">${ev.title}</h4><span class="text-xs text-slate-500">Agendado por: <strong class="text-slate-700">${ev.createdBy}</strong></span></div></div><i class="fa-solid fa-chevron-right text-slate-400"></i></div>`;
         });
         html += `</div>`;
       }
-
       html += `</div>`;
       viewContainer.innerHTML = html;
     }
@@ -737,39 +443,22 @@
     function renderMiniCalendar() {
       const year = selectedMiniDate.getFullYear();
       const month = selectedMiniDate.getMonth();
-
       const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
       miniMonthTitle.textContent = `${months[month]} ${year}`;
 
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-
       let html = '';
 
-      for (let i = 0; i < firstDay; i++) {
-        html += `<div></div>`;
-      }
-
-      const todayStr = formatDate(new Date());
-      const selectedStr = formatDate(currentDate);
+      for (let i = 0; i < firstDay; i++) html += `<div></div>`;
 
       for (let day = 1; day <= daysInMonth; day++) {
-        const d = new Date(year, month, day);
-        const dateStr = formatDate(d);
-        const isToday = dateStr === todayStr;
-        const isSelected = dateStr === selectedStr;
+        const dateStr = formatDate(new Date(year, month, day));
+        const isToday = dateStr === formatDate(new Date());
+        const isSelected = dateStr === formatDate(currentDate);
 
-        html += `
-          <button onclick="selectMiniCalendarDate('${dateStr}')" 
-            class="h-7 w-7 mx-auto flex items-center justify-center rounded-full text-xs font-medium transition
-            ${isToday ? 'bg-blue-600 text-white font-bold' : ''} 
-            ${isSelected && !isToday ? 'bg-blue-100 text-blue-700 font-bold border border-blue-300' : ''} 
-            ${!isToday && !isSelected ? 'hover:bg-slate-200 text-slate-700' : ''}">
-            ${day}
-          </button>
-        `;
+        html += `<button onclick="selectMiniCalendarDate('${dateStr}')" class="h-7 w-7 mx-auto flex items-center justify-center rounded-full text-xs font-medium ${isToday ? 'bg-blue-600 text-white font-bold' : ''} ${isSelected && !isToday ? 'bg-blue-100 text-blue-700 font-bold border border-blue-300' : ''} ${!isToday && !isSelected ? 'hover:bg-slate-200 text-slate-700' : ''}">${day}</button>`;
       }
-
       miniCalendarDays.innerHTML = html;
     }
 
@@ -786,36 +475,29 @@
       document.getElementById('inputStartTime').value = defaultStartTime;
 
       const [h, m] = defaultStartTime.split(':').map(Number);
-      const endHour = (h + 1).toString().padStart(2, '0');
-      document.getElementById('inputEndTime').value = `${endHour}:${m.toString().padStart(2, '0')}`;
+      document.getElementById('inputEndTime').value = `${(h + 1).toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
 
       document.getElementById('inputCreatedBy').value = globalUserNameInput.value || '';
       document.getElementById('inputCategory').value = 'Atendimento';
       document.getElementById('inputDescription').value = '';
       document.getElementById('btnDeleteEvent').classList.add('hidden');
-
       document.getElementById('eventModal').classList.remove('hidden');
     }
 
-    function closeModal() {
-      document.getElementById('eventModal').classList.add('hidden');
-    }
+    function closeModal() { document.getElementById('eventModal').classList.add('hidden'); }
 
     function showEventDetails(id) {
       const ev = events.find(e => e.id === id);
       if (!ev) return;
-
       currentActiveEvent = ev;
 
       const style = categoryStyles[ev.category] || categoryStyles['Outros'];
       const badge = document.getElementById('detailCategoryBadge');
       badge.textContent = ev.category;
-      badge.className = `text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wider ${style.bg} ${style.text}`;
+      badge.className = `text-xs px-2.5 py-1 rounded-full font-bold uppercase ${style.bg} ${style.text}`;
 
       document.getElementById('detailTitle').textContent = ev.title;
-
-      const dateObj = new Date(ev.date + 'T00:00:00');
-      document.getElementById('detailDate').textContent = dateObj.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      document.getElementById('detailDate').textContent = new Date(ev.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
       document.getElementById('detailTime').textContent = `${ev.startTime} às ${ev.endTime}`;
       document.getElementById('detailCreatedBy').textContent = ev.createdBy || 'Não informado';
 
@@ -830,13 +512,10 @@
       document.getElementById('detailsModal').classList.remove('hidden');
     }
 
-    function closeDetailsModal() {
-      document.getElementById('detailsModal').classList.add('hidden');
-    }
+    function closeDetailsModal() { document.getElementById('detailsModal').classList.add('hidden'); }
 
     document.getElementById('eventForm').addEventListener('submit', (e) => {
       e.preventDefault();
-
       const id = document.getElementById('eventId').value;
       const createdBy = document.getElementById('inputCreatedBy').value.trim();
 
@@ -863,13 +542,11 @@
     document.getElementById('btnNewEvent').addEventListener('click', () => openNewEventModal());
     document.getElementById('btnCloseModal').addEventListener('click', closeModal);
     document.getElementById('btnCancelModal').addEventListener('click', closeModal);
-
     document.getElementById('btnCloseDetails').addEventListener('click', closeDetailsModal);
 
     document.getElementById('btnEditFromDetails').addEventListener('click', () => {
       if (!currentActiveEvent) return;
       closeDetailsModal();
-
       document.getElementById('eventId').value = currentActiveEvent.id;
       document.getElementById('modalTitle').querySelector('span').textContent = 'Editar Compromisso';
       document.getElementById('inputTitle').value = currentActiveEvent.title;
@@ -880,13 +557,11 @@
       document.getElementById('inputCategory').value = currentActiveEvent.category;
       document.getElementById('inputDescription').value = currentActiveEvent.description || '';
       document.getElementById('btnDeleteEvent').classList.remove('hidden');
-
       document.getElementById('eventModal').classList.remove('hidden');
     });
 
     document.getElementById('btnDeleteFromDetails').addEventListener('click', () => {
-      if (!currentActiveEvent) return;
-      if (confirm(`Excluir o compromisso "${currentActiveEvent.title}"?`)) {
+      if (currentActiveEvent && confirm(`Excluir o compromisso "${currentActiveEvent.title}"?`)) {
         deleteEventFromStorage(currentActiveEvent.id);
         closeDetailsModal();
       }
@@ -908,7 +583,6 @@
         });
         e.target.classList.add('bg-white', 'shadow-xs', 'text-blue-600');
         e.target.classList.remove('text-slate-600');
-
         currentView = e.target.getAttribute('data-view');
         renderCurrentView();
       });
@@ -932,22 +606,16 @@
     });
 
     document.getElementById('searchInput').addEventListener('input', renderCurrentView);
-    document.querySelectorAll('.filter-checkbox').forEach(cb => {
-      cb.addEventListener('change', renderCurrentView);
-    });
+    document.querySelectorAll('.filter-checkbox').forEach(cb => cb.addEventListener('change', renderCurrentView));
 
     function formatDate(d) {
-      const year = d.getFullYear();
-      const month = (d.getMonth() + 1).toString().padStart(2, '0');
-      const day = d.getDate().toString().padStart(2, '0');
-      return `${year}-${month}-${day}`;
+      return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
     }
 
     function getStartOfWeek(d) {
       const date = new Date(d);
       const day = date.getDay();
-      const diff = date.getDate() - day;
-      return new Date(date.setDate(diff));
+      return new Date(date.setDate(date.getDate() - day));
     }
 
     initDataSync();
