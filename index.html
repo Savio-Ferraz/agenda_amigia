@@ -54,7 +54,7 @@
         <button id="btnPrev" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition"><i class="fa-solid fa-chevron-left text-xs"></i></button>
         <button id="btnNext" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition"><i class="fa-solid fa-chevron-right text-xs"></i></button>
       </div>
-      <h2 id="currentPeriodTitle" class="text-lg font-bold text-slate-800 ml-2 min-w-[180px]">Carregando...</h2>
+      <h2 id="currentPeriodTitle" class="text-lg font-bold text-slate-800 ml-2 min-w-[180px]">---</h2>
     </div>
 
     <div class="flex items-center gap-3">
@@ -256,6 +256,7 @@
     }
 
     function initDataSync() {
+      renderCurrentView(); // Renderiza a tela imediatamente na inicialização
       if (eventsRef) {
         eventsRef.on('value', (snapshot) => {
           const data = snapshot.val();
@@ -623,6 +624,7 @@
       });
     });
 
+    // Inicia a renderização imediatamente
     initDataSync();
   </script>
 </body>
