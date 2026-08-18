@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda Compartilhada - Amig.IA Educação</title>
+  <style>
+    :root {
+      --red: #EA4335;
+      --yellow: #FBBC05;
+      --green: #34A853;
+      --blue: #4285F4;
+      --dark: #0f172a;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 20px;
+      color: var(--dark);
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    header {
+      text-align: center;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    header img {
+      max-width: 240px;
+      height: auto;
+    }
+    .form-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+    input, button {
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    button {
+      background-color: var(--blue);
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background-color: #2b6cb0;
+    }
+    .agenda-list {
+      list-style: none;
+      padding: 0;
+    }
+    .agenda-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px;
+      background: #f1f5f9;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border-left: 5px solid var(--green);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <img src="Logo.png" alt="Amig.IA Educação">
+      <h2>Agenda em Tempo Real</h2>
+    </header>
+
+    <div class="form-group">
+      <input type="text" id="nome" placeholder="Seu Nome">
+      <input type="date" id="data">
+      <input type="time" id="horario">
+      <button id="btnAgendar">Agendar</button>
+    </div>
+
+    <h3>Horários Marcados</h3>
+    <ul id="listaAgendamentos" class="agenda-list"></ul>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtiJIROH430x8BwgM1WQGLwABALMoq_sg",
+      authDomain: "realtime-database-d7ca2.firebaseapp.com",
+      databaseURL: "https://realtime-database-d7ca2-default-rtdb.firebaseio.com",
+      projectId: "realtime-database-d7ca2",
+      storageBucket: "realtime-database-d7ca2.firebasestorage.app",
+      messagingSenderId: "886282109249",
+      appId: "1:886282109249:web:f76831b8d033fedbe221c0",
+      measurementId: "G-JXZZEZ1826"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const btnAgendar = document.getElementById('btnAgendar');
+    btnAgendar.addEventListener('click', () => {
+      const nome = document.getElementById('nome').value;
+      const data = document.getElementById('data').value;
+      const horario = document.getElementById('horario').value;
+
+      if (!nome || !data || !horario) {
+        alert('Por favor, preencha todos os campos.');
+        return;
+      }
+
+      push(ref(db, 'agendamentos'), {
+        nome: nome,
+        data: data,
+        horario: horario,
+        criadoEm: Date.now()
+      });
+
+      document.getElementById('nome').value = '';
+    });
+
+    const agendamentosRef = ref(db, 'agendamentos');
+    onValue(agendamentosRef, (snapshot) => {
+      const lista = document.getElementById('listaAgendamentos');
+      lista.innerHTML = '';
+      
+      snapshot.forEach((childSnapshot) => {
+        const item = childSnapshot.val();
+        const li = document.createElement('li');
+        li.className = 'agenda-item';
+        li.innerHTML = `<span><strong>${item.nome}</strong> - ${item.data} às ${item.horario}</span>`;
+        lista.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
