@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+  <!-- Firebase Compatibility SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
@@ -214,13 +215,26 @@
   </div>
 
   <script>
-    const firebaseConfig = { databaseURL: "https://agenda-amigia-default-rtdb.firebaseio.com" };
+    // Configurações do Firebase fornecidas
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtiJIROH430x8BwgM1WQGLwABALMoq_sg",
+      authDomain: "realtime-database-d7ca2.firebaseapp.com",
+      databaseURL: "https://realtime-database-d7ca2-default-rtdb.firebaseio.com",
+      projectId: "realtime-database-d7ca2",
+      storageBucket: "realtime-database-d7ca2.firebasestorage.app",
+      messagingSenderId: "886282109249",
+      appId: "1:886282109249:web:f76831b8d033fedbe221c0",
+      measurementId: "G-JXZZEZ1826"
+    };
+
     let db = null, eventsRef = null;
     try {
       if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
       db = firebase.database();
       eventsRef = db.ref("compromissos");
-    } catch(e) { console.warn("Modo offline ativo."); }
+    } catch(e) { 
+      console.warn("Erro ao conectar no Firebase:", e); 
+    }
 
     let events = [], currentDate = new Date(), selectedMiniDate = new Date(), currentView = 'month', currentActiveEvent = null;
 
@@ -256,64 +270,60 @@
     }
 
     function initDataSync() {
-      // 1. Carrega dados do localStorage imediatamente para garantir carregamento instantâneo
+      // 1. Carrega dados em cache local se existirem
       const localData = localStorage.getItem('amigia_events');
       if (localData) {
-        try {
-          events = JSON.parse(localData);
-        } catch (e) {
-          events = [];
-        }
+        try { events = JSON.parse(localData); } catch (e) { events = []; }
       }
       renderCurrentView();
 
-      // 2. Tenta sincronizar com Firebase em tempo real (caso esteja ativo)
+      // 2. Sincroniza em tempo real com o Firebase para TODOS os usuários
       if (eventsRef) {
         eventsRef.on('value', (snapshot) => {
           const data = snapshot.val();
+          events = [];
           if (data) {
-            events = [];
-            Object.keys(data).forEach(key => events.push({ id: key, ...data[key] }));
-            localStorage.setItem('amigia_events', JSON.stringify(events));
-            renderCurrentView();
+            Object.keys(data).forEach(key => {
+              events.push({ id: key, ...data[key] });
+            });
           }
-        }, (err) => console.warn("Sincronização Firebase offline, usando armazenamento local."));
+          localStorage.setItem('amigia_events', JSON.stringify(events));
+          renderCurrentView();
+        }, (error) => {
+          console.error("Erro na leitura das Regras do Firebase:", error);
+        });
       }
     }
 
     function saveEventToStorage(eventData, id = null) {
       const targetId = id || 'evt_' + Date.now();
-      
-      if (id) {
-        const index = events.findIndex(e => e.id === id);
-        if (index !== -1) events[index] = { id: targetId, ...eventData };
-      } else {
-        events.push({ id: targetId, ...eventData });
-      }
 
-      // Salva no LocalStorage obrigatoriamente
-      localStorage.setItem('amigia_events', JSON.stringify(events));
-
-      // Tenta gravar no Firebase se disponível
       if (eventsRef) {
-        try {
-          if (id) eventsRef.child(id).update(eventData);
-          else eventsRef.child(targetId).set(eventData);
-        } catch(e) { console.warn("Erro ao salvar no Firebase, mantido no local."); }
+        if (id) {
+          eventsRef.child(id).update(eventData);
+        } else {
+          eventsRef.child(targetId).set(eventData);
+        }
+      } else {
+        if (id) {
+          const index = events.findIndex(e => e.id === id);
+          if (index !== -1) events[index] = { id: targetId, ...eventData };
+        } else {
+          events.push({ id: targetId, ...eventData });
+        }
+        localStorage.setItem('amigia_events', JSON.stringify(events));
+        renderCurrentView();
       }
-
-      renderCurrentView();
     }
 
     function deleteEventFromStorage(id) {
-      events = events.filter(e => e.id !== id);
-      localStorage.setItem('amigia_events', JSON.stringify(events));
-
       if (eventsRef) {
-        try { eventsRef.child(id).remove(); } catch(e) {}
+        eventsRef.child(id).remove();
+      } else {
+        events = events.filter(e => e.id !== id);
+        localStorage.setItem('amigia_events', JSON.stringify(events));
+        renderCurrentView();
       }
-
-      renderCurrentView();
     }
 
     function renderCurrentView() {
@@ -644,7 +654,7 @@
       });
     });
 
-    // Inicia a renderização imediatamente
+    // Inicia a sincronização e renderização
     initDataSync();
   </script>
 </body>
