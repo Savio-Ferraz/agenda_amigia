@@ -240,6 +240,21 @@
     globalUserNameInput.value = localStorage.getItem('amigia_user_name') || '';
     globalUserNameInput.addEventListener('input', (e) => localStorage.setItem('amigia_user_name', e.target.value));
 
+    function formatDate(date) {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function getStartOfWeek(date) {
+      const d = new Date(date);
+      const day = d.getDay();
+      const diff = d.getDate() - day;
+      return new Date(d.setDate(diff));
+    }
+
     function initDataSync() {
       if (eventsRef) {
         eventsRef.on('value', (snapshot) => {
@@ -531,12 +546,28 @@
         endTime: document.getElementById('inputEndTime').value,
         createdBy: createdBy || 'Anônimo',
         category: document.getElementById('inputCategory').value,
-        description: document.getElementById('inputDescription').value.trim(),
-        updatedAt: new Date().toISOString()
+        description: document.getElementById('inputDescription').value.trim()
       };
 
       saveEventToStorage(eventData, id || null);
       closeModal();
+    });
+
+    document.getElementById('btnToday').addEventListener('click', () => { currentDate = new Date(); selectedMiniDate = new Date(); renderCurrentView(); });
+    document.getElementById('btnPrev').addEventListener('click', () => navigatePeriod(-1));
+    document.getElementById('btnNext').addEventListener('click', () => navigatePeriod(1));
+    document.getElementById('miniPrev').addEventListener('click', () => { selectedMiniDate.setMonth(selectedMiniDate.getMonth() - 1); renderMiniCalendar(); });
+    document.getElementById('miniNext').addEventListener('click', () => { selectedMiniDate.setMonth(selectedMiniDate.getMonth() + 1); renderMiniCalendar(); });
+
+    document.querySelectorAll('.view-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.view-btn').forEach(b => {
+          b.className = 'view-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900';
+        });
+        e.target.className = 'view-btn px-3 py-1.5 rounded-lg bg-white shadow-xs text-blue-600';
+        currentView = e.target.getAttribute('data-view');
+        renderCurrentView();
+      });
     });
 
     document.getElementById('btnNewEvent').addEventListener('click', () => openNewEventModal());
@@ -547,6 +578,7 @@
     document.getElementById('btnEditFromDetails').addEventListener('click', () => {
       if (!currentActiveEvent) return;
       closeDetailsModal();
+
       document.getElementById('eventId').value = currentActiveEvent.id;
       document.getElementById('modalTitle').querySelector('span').textContent = 'Editar Compromisso';
       document.getElementById('inputTitle').value = currentActiveEvent.title;
@@ -556,12 +588,14 @@
       document.getElementById('inputCreatedBy').value = currentActiveEvent.createdBy;
       document.getElementById('inputCategory').value = currentActiveEvent.category;
       document.getElementById('inputDescription').value = currentActiveEvent.description || '';
+
       document.getElementById('btnDeleteEvent').classList.remove('hidden');
       document.getElementById('eventModal').classList.remove('hidden');
     });
 
     document.getElementById('btnDeleteFromDetails').addEventListener('click', () => {
-      if (currentActiveEvent && confirm(`Excluir o compromisso "${currentActiveEvent.title}"?`)) {
+      if (!currentActiveEvent) return;
+      if (confirm('Tem certeza que deseja excluir este compromisso?')) {
         deleteEventFromStorage(currentActiveEvent.id);
         closeDetailsModal();
       }
@@ -569,54 +603,25 @@
 
     document.getElementById('btnDeleteEvent').addEventListener('click', () => {
       const id = document.getElementById('eventId').value;
-      if (id && confirm('Excluir este compromisso?')) {
+      if (id && confirm('Tem certeza que deseja excluir este compromisso?')) {
         deleteEventFromStorage(id);
         closeModal();
       }
     });
 
-    document.querySelectorAll('.view-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.view-btn').forEach(b => {
-          b.classList.remove('bg-white', 'shadow-xs', 'text-blue-600');
-          b.classList.add('text-slate-600');
-        });
-        e.target.classList.add('bg-white', 'shadow-xs', 'text-blue-600');
-        e.target.classList.remove('text-slate-600');
-        currentView = e.target.getAttribute('data-view');
+    document.getElementById('searchInput').addEventListener('input', renderCurrentView);
+    document.querySelectorAll('.filter-checkbox').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        if (e.target.value === 'all') {
+          document.querySelectorAll('.filter-checkbox').forEach(c => c.checked = e.target.checked);
+        } else {
+          const allCb = document.querySelector('.filter-checkbox[value="all"]');
+          const others = Array.from(document.querySelectorAll('.filter-checkbox:not([value="all"])'));
+          allCb.checked = others.every(c => c.checked);
+        }
         renderCurrentView();
       });
     });
-
-    document.getElementById('btnPrev').addEventListener('click', () => navigatePeriod(-1));
-    document.getElementById('btnNext').addEventListener('click', () => navigatePeriod(1));
-    document.getElementById('btnToday').addEventListener('click', () => {
-      currentDate = new Date();
-      selectedMiniDate = new Date();
-      renderCurrentView();
-    });
-
-    document.getElementById('miniPrev').addEventListener('click', () => {
-      selectedMiniDate.setMonth(selectedMiniDate.getMonth() - 1);
-      renderMiniCalendar();
-    });
-    document.getElementById('miniNext').addEventListener('click', () => {
-      selectedMiniDate.setMonth(selectedMiniDate.getMonth() + 1);
-      renderMiniCalendar();
-    });
-
-    document.getElementById('searchInput').addEventListener('input', renderCurrentView);
-    document.querySelectorAll('.filter-checkbox').forEach(cb => cb.addEventListener('change', renderCurrentView));
-
-    function formatDate(d) {
-      return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
-    }
-
-    function getStartOfWeek(d) {
-      const date = new Date(d);
-      const day = date.getDay();
-      return new Date(date.setDate(date.getDate() - day));
-    }
 
     initDataSync();
   </script>
