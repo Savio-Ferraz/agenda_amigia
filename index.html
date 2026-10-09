@@ -45,75 +45,19 @@
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans h-screen flex flex-col overflow-hidden antialiased">
-  <!-- TELA DE LOGIN AMIGIA -->
-<div id="loginScreen"
-     class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-4">
-
-  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
-
-    <div class="text-center mb-8">
-      <img src="logo.png"
-           alt="Amigia Educação"
-           class="w-20 h-20 object-contain mx-auto mb-4">
-
-      <h2 class="text-2xl font-extrabold text-slate-900">
-        Agenda Amigia
-      </h2>
-
-      <p class="text-sm text-slate-500 mt-2">
-        Acesso seguro à agenda corporativa
-      </p>
+  <div id="loginScreen" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
+      <img src="logo.png" alt="Amigia" class="w-16 h-16 object-contain mx-auto mb-4">
+      <h2 class="text-2xl font-extrabold text-slate-900 text-center">Agenda Amigia</h2>
+      <p id="loginHelp" class="text-sm text-slate-500 text-center mb-6 mt-2">Entre com sua conta autorizada.</p>
+      <form id="loginForm" class="space-y-4">
+        <label class="block text-sm font-semibold">E-mail<input id="loginEmail" type="email" autocomplete="username" required class="block w-full mt-1 p-3 rounded-xl border border-slate-300"></label>
+        <label class="block text-sm font-semibold">Senha<input id="loginPassword" type="password" autocomplete="current-password" required class="block w-full mt-1 p-3 rounded-xl border border-slate-300"></label>
+        <p id="loginError" role="alert" class="text-sm text-rose-600" aria-live="polite"></p>
+        <button id="loginButton" type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl">Entrar na Agenda</button>
+      </form>
     </div>
-
-    <form id="loginForm" class="space-y-4">
-
-      <div>
-        <label for="loginEmail"
-               class="block text-xs font-bold text-slate-600 mb-2">
-          E-mail
-        </label>
-
-        <input type="email"
-               id="loginEmail"
-               required
-               autocomplete="username"
-               placeholder="seuemail@exemplo.com"
-               class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-      </div>
-
-      <div>
-        <label for="loginPassword"
-               class="block text-xs font-bold text-slate-600 mb-2">
-          Senha
-        </label>
-
-        <input type="password"
-               id="loginPassword"
-               required
-               autocomplete="current-password"
-               placeholder="Digite sua senha"
-               class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-      </div>
-
-      <p id="loginError"
-         role="alert"
-         class="hidden text-xs text-red-600 font-semibold">
-      </p>
-
-      <button type="submit"
-              id="loginButton"
-              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">
-        Entrar na Agenda
-      </button>
-
-    </form>
-
-    <p class="text-center text-xs text-slate-400 mt-7">
-      Amigia Educação • Acesso restrito
-    </p>
-
   </div>
-</div>
 
   <!-- BARRA DE BRANDING NO TOPO -->
   <div class="h-1 w-full amigia-gradient z-30"></div>
@@ -163,6 +107,9 @@
         <input type="text" id="globalUserName" placeholder="Seu Nome..." class="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none w-28 placeholder:font-normal placeholder:text-slate-400">
       </div>
 
+      <span id="userRoleIndicator" class="text-xs font-bold text-slate-600"></span>
+      <button id="btnRequests" onclick="openRequestsPanel()" class="hidden px-3.5 py-2 bg-amber-100 text-amber-900 rounded-xl text-xs font-bold">Solicitações <span id="pendingCount"></span></button>
+      <button id="btnSignOut" onclick="signOutAgenda()" class="hidden px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-bold">Sair</button>
       <button id="btnNewEvent" onclick="openNewEventModal()" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs hover:shadow-md transition flex items-center gap-2">
         <i class="fa-solid fa-plus text-xs"></i>
         <span>Novo Agendamento</span>
@@ -323,6 +270,12 @@
     </div>
   </div>
 
+  <div id="requestsPanel" class="hidden fixed inset-0 z-[70] bg-slate-900/60 p-4 flex items-center justify-center">
+    <section class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto p-6" aria-label="Solicitações">
+      <div class="flex items-center justify-between mb-4"><h2 class="text-xl font-extrabold">Solicitações de compromissos</h2><button onclick="closeRequestsPanel()" class="px-3 py-1 rounded-lg bg-slate-100">Fechar</button></div>
+      <div id="requestsList" class="space-y-3"></div>
+    </section>
+  </div>
   <!-- LÓGICA JAVASCRIPT INTEGRADA COM DETECÇÃO AUTOMÁTICA DE URL (CRM) -->
   <script>
     // Configuração do Firebase Realtime Database
@@ -336,66 +289,16 @@
       appId: "1:886282109249:web:f76831b8d033fedbe221c0"
     };
 
-    let db = null;
-let auth = null;
-let eventsRef = null;
-let currentUser = null;
-let currentUserRole = null;
-    // Monitoramento da autenticação e identificação do perfil
-function monitorarAutenticacao() {
-  if (!auth || !db) {
-    console.error("Firebase Authentication indisponível.");
-    return;
-  }
-
-  auth.onAuthStateChanged(async (user) => {
-    currentUser = user;
-    currentUserRole = null;
-
-    if (!user) {
-      console.log("Nenhum usuário autenticado.");
-      return;
-    }
-
+    let db = null, auth = null, eventsRef = null, currentUser = null, currentUserRole = null;
+    let requestsRef = null, requestsListenerQuery = null, requests = {};
+    let authGeneration = 0;
     try {
-      const snapshot = await db.ref("usuarios/" + user.uid + "/role").once("value");
-
-      // Evita utilizar um resultado de uma sessão anterior
-      if (auth.currentUser?.uid !== user.uid) return;
-
-      const role = snapshot.val();
-
-      if (role !== "Diretor" && role !== "Colaborador") {
-        console.error("Perfil não autorizado.");
-        return;
-      }
-
-      currentUserRole = role;
-
-      console.log("Usuário autenticado:", user.uid);
-      console.log("Perfil identificado:", currentUserRole);
-
-    } catch (error) {
-      console.error("Erro ao consultar perfil:", error);
-    }
-  });
-}
-
-try {
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-
-  auth = firebase.auth();
-  db = firebase.database();
-  eventsRef = db.ref("compromissos");
-
-  console.log("Firebase Authentication inicializado.");
-  monitorarAutenticacao();
-
-} catch (error) {
-  console.error("Erro ao inicializar Firebase:", error);
-}
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+      db = firebase.database();
+      eventsRef = db.ref('compromissos');
+      requestsRef = db.ref('solicitacoes_compromissos');
+    } catch (error) { console.error('Falha ao iniciar Firebase:', error); }
 
     let events = [];
     let currentDate = new Date();
@@ -418,10 +321,13 @@ try {
 
     // Inicialização do aplicativo
     window.addEventListener('DOMContentLoaded', () => {
-      globalUserNameInput.value = localStorage.getItem('amigia_user_name') || 'Savio Ferraz';
-      globalUserNameInput.addEventListener('input', (e) => localStorage.setItem('amigia_user_name', e.target.value));
+      globalUserNameInput.value = '';
+      globalUserNameInput.addEventListener('input', () => {});
       
-      initDataSync();
+      localStorage.removeItem('amigia_events');
+      document.getElementById('loginForm').addEventListener('submit', loginAgenda);
+      if (auth) auth.onAuthStateChanged(handleAuthChange);
+      else setLoginError('Firebase indisponível. Tente recarregar a página.');
 
       // Fechar Modais com a Tecla ESC
       document.addEventListener('keydown', (e) => {
@@ -436,13 +342,8 @@ try {
       const titleParam = urlParams.get('title');
       const categoryParam = urlParams.get('category');
 
-      if (titleParam) {
-        openNewEventModal(null, '09:00');
-        document.getElementById('inputTitle').value = titleParam;
-        if (categoryParam) {
-          document.getElementById('inputCategory').value = categoryParam;
-        }
-      }
+      // Parâmetros do CRM só abrem o formulário após a autenticação.
+      window.crmDraft = titleParam ? { title: titleParam, category: categoryParam } : null;
     });
 
     function formatDate(date) {
@@ -460,55 +361,198 @@ try {
       return new Date(d.setDate(diff));
     }
 
-    function initDataSync() {
-      const localData = localStorage.getItem('amigia_events');
-      if (localData) {
-        try { events = JSON.parse(localData); } catch (e) { events = []; }
-      }
+    // Segurança: a interface não é fonte de autorização. As regras do Realtime Database prevalecem.
+    const allowedFields = ['title','date','startTime','endTime','category','description'];
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function setLoginError(message) { document.getElementById('loginError').textContent = message || ''; }
+    async function loginAgenda(e) {
+      e.preventDefault();
+      setLoginError('');
+      const button = document.getElementById('loginButton');
+      button.disabled = true;
+      button.textContent = 'Autenticando...';
+      try {
+        await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value.trim(), document.getElementById('loginPassword').value);
+        document.getElementById('loginPassword').value = '';
+      } catch (err) {
+        console.error('Erro ao entrar:', err.code);
+        setLoginError('Não foi possível entrar. Confira seu e-mail e senha.');
+      } finally { button.disabled = false; button.textContent = 'Entrar na Agenda'; }
+    }
+    function clearUserData() {
+      if (eventsRef) eventsRef.off('value');
+      if (requestsListenerQuery) requestsListenerQuery.off('value');
+      requestsListenerQuery = null;
+      events = []; requests = {}; currentActiveEvent = null;
+      localStorage.removeItem('amigia_events');
+      document.getElementById('btnRequests').classList.add('hidden');
+      document.getElementById('btnSignOut').classList.add('hidden');
+      document.getElementById('userRoleIndicator').textContent = '';
+      closeModal(); closeDetailsModal(); closeRequestsPanel();
       renderCurrentView();
-
-      if (eventsRef) {
-        eventsRef.on('value', (snapshot) => {
-          const data = snapshot.val();
-          events = [];
-          if (data) {
-            Object.keys(data).forEach(key => {
-              events.push({ id: key, ...data[key] });
-            });
-          }
-          localStorage.setItem('amigia_events', JSON.stringify(events));
-          renderCurrentView();
-        }, (error) => {
-          console.error("Erro no Firebase Sync:", error);
-        });
-      }
     }
-
-    function saveEventToStorage(eventData, id = null) {
-      const targetId = id || 'evt_' + Date.now();
-      if (eventsRef) {
-        if (id) eventsRef.child(id).update(eventData);
-        else eventsRef.child(targetId).set(eventData);
-      } else {
-        if (id) {
-          const index = events.findIndex(e => e.id === id);
-          if (index !== -1) events[index] = { id: targetId, ...eventData };
-        } else {
-          events.push({ id: targetId, ...eventData });
+    async function handleAuthChange(user) {
+      const generation = ++authGeneration;
+      clearUserData();
+      currentUser = null; currentUserRole = null;
+      document.getElementById('loginScreen').classList.remove('hidden');
+      if (!user) return;
+      document.getElementById('loginHelp').textContent = 'Verificando suas permissões...';
+      try {
+        const snap = await db.ref('usuarios/' + user.uid + '/role').once('value');
+        if (generation !== authGeneration || auth.currentUser?.uid !== user.uid) return;
+        const role = snap.val();
+        if (role !== 'Diretor' && role !== 'Colaborador') {
+          setLoginError('Sua conta ainda não possui acesso à Agenda.');
+          await auth.signOut();
+          return;
         }
-        localStorage.setItem('amigia_events', JSON.stringify(events));
-        renderCurrentView();
+        currentUser = user; currentUserRole = role;
+        document.getElementById('loginHelp').textContent = 'Entre com sua conta autorizada.';
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('btnSignOut').classList.remove('hidden');
+        document.getElementById('btnRequests').classList.remove('hidden');
+        document.getElementById('userRoleIndicator').textContent = role;
+        globalUserNameInput.value = user.email?.split('@')[0] || role;
+        globalUserNameInput.readOnly = true;
+        initDataSync(); initRequestsSync();
+        if (window.crmDraft) {
+          openNewEventModal();
+          document.getElementById('inputTitle').value = window.crmDraft.title;
+          if (window.crmDraft.category) document.getElementById('inputCategory').value = window.crmDraft.category;
+          window.crmDraft = null;
+        }
+      } catch (err) {
+        console.error('Erro ao conferir perfil:',err);
+        setLoginError('Não foi possível validar seu perfil. Confira as regras do Firebase.');
+        await auth.signOut();
       }
     }
-
-    function deleteEventFromStorage(id) {
-      if (eventsRef) {
-        eventsRef.child(id).remove();
-      } else {
-        events = events.filter(e => e.id !== id);
-        localStorage.setItem('amigia_events', JSON.stringify(events));
+    async function signOutAgenda() { if (auth) await auth.signOut(); }
+    function requireSession() {
+      if (!currentUser || !currentUserRole || auth.currentUser?.uid !== currentUser.uid) throw new Error('Entre na Agenda para continuar.');
+    }
+    function initDataSync() {
+      requireSession();
+      eventsRef.on('value', snap => {
+        if (!currentUserRole) return;
+        const data = snap.val() || {};
+        events = Object.entries(data).filter(([,v])=>v && typeof v === 'object').map(([id,v])=>({ ...v, id }));
         renderCurrentView();
+      }, err => { events = []; renderCurrentView(); alert('Não foi possível carregar os compromissos: ' + err.message); });
+    }
+    function initRequestsSync() {
+      requireSession();
+      requestsListenerQuery = currentUserRole === 'Diretor' ? requestsRef : requestsRef.orderByChild('solicitanteUid').equalTo(currentUser.uid);
+      requestsListenerQuery.on('value', snap => {
+        if (!currentUserRole) return;
+        requests = snap.val() || {};
+        document.getElementById('pendingCount').textContent = '(' + Object.values(requests).filter(r=>r.status==='pendente').length + ')';
+        if (!document.getElementById('requestsPanel').classList.contains('hidden')) renderRequests();
+      }, err => console.error('Falha ao carregar solicitações:', err));
+    }
+    async function saveEventToStorage(eventData, id = null) {
+      requireSession();
+      if (id && currentUserRole === 'Colaborador') {
+        await createRequest(id, 'editar', eventData);
+      } else if (id) {
+        await eventsRef.child(id).update(eventData);
+      } else {
+        await eventsRef.push().set({ ...eventData, createdByUid: currentUser.uid });
       }
+    }
+    async function deleteEventFromStorage(id) {
+      requireSession();
+      if (currentUserRole === 'Colaborador') await createRequest(id, 'excluir');
+      else await eventsRef.child(id).remove();
+    }
+    async function createRequest(id, type, proposed = null) {
+      const original = events.find(e=>e.id===id);
+      if (!original) throw new Error('Compromisso não encontrado.');
+      const reason = prompt('Informe o motivo da solicitação:');
+      if (reason === null) throw new Error('Solicitação cancelada.');
+      if (!reason.trim()) throw new Error('O motivo é obrigatório.');
+      const payload = {
+        solicitanteUid: currentUser.uid, compromissoId: id, tipo: type,
+        status: 'pendente', motivo: reason.trim(), criadoEm: firebase.database.ServerValue.TIMESTAMP
+      };
+      if (type === 'editar') {
+        payload.alteracoes = {};
+        for (const f of allowedFields) if (proposed[f] !== original[f]) payload.alteracoes[f] = proposed[f];
+        if (!Object.keys(payload.alteracoes).length) throw new Error('Nenhuma alteração foi feita.');
+      }
+      await requestsRef.push().set(payload);
+      alert('Sua solicitação foi enviada ao Diretor.');
+    }
+    function openRequestsPanel() { if (!currentUserRole) return; document.getElementById('requestsPanel').classList.remove('hidden'); renderRequests(); }
+    function closeRequestsPanel() { document.getElementById('requestsPanel').classList.add('hidden'); }
+    function renderRequests() {
+      const list = document.getElementById('requestsList');
+      const entries = Object.entries(requests).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
+      list.innerHTML = entries.length ? '' : '<p class="text-sm text-slate-500">Nenhuma solicitação encontrada.</p>';
+      for (const [id,req] of entries) {
+        const card = document.createElement('div');
+        card.className = 'rounded-xl border border-slate-200 p-4 bg-slate-50';
+        const current = events.find(e=>e.id===req.compromissoId);
+        const time = Number.isFinite(req.criadoEm) ? new Date(req.criadoEm).toLocaleString('pt-BR') : '-';
+        const changes = req.tipo === 'editar' ? '<p class="mt-2 text-xs font-semibold">Alterações solicitadas:</p><pre class="text-xs whitespace-pre-wrap break-words">' + escapeHTML(JSON.stringify(req.alteracoes || {}, null, 2)) + '</pre>' : '';
+        card.innerHTML = `<p class="font-bold text-slate-900">${escapeHTML(req.tipo === 'editar' ? 'Editar' : 'Excluir')} — ${escapeHTML(current?.title || req.compromissoId)}</p><p class="text-xs text-slate-600 mt-1">Status: ${escapeHTML(req.status)} • ${escapeHTML(time)}</p><p class="text-sm mt-2">Motivo: ${escapeHTML(req.motivo)}</p>${changes}`;
+        if (currentUserRole === 'Diretor' && req.status === 'pendente') {
+          const actions = document.createElement('div'); actions.className = 'flex gap-2 mt-3';
+          for (const [decision, caption, klass] of [['aprovado','Aprovar','bg-emerald-600'],['rejeitado','Rejeitar','bg-rose-600']]) {
+            const btn = document.createElement('button'); btn.textContent = caption;
+            btn.className = `${klass} text-white rounded-lg py-2 px-4 text-xs font-bold`;
+            btn.onclick = async () => {
+              if (!confirm(caption + ' esta solicitação? Verifique o compromisso atual antes de confirmar.')) return;
+              btn.disabled = true;
+              try { await decideRequest(id, decision); alert('Solicitação processada.'); }
+              catch (e) { alert('Não foi possível processar: ' + e.message); }
+              finally { btn.disabled = false; }
+            };
+            actions.appendChild(btn);
+          }
+          card.appendChild(actions);
+        }
+        list.appendChild(card);
+      }
+    }
+    // Transação atômica de protótipo: decisão + efeito + auditoria juntos.
+    // Nota: transação na raiz lê/escreve todo o banco; migrar para backend confiável antes de escalar.
+    async function decideRequest(id, decision) {
+      requireSession();
+      if (currentUserRole !== 'Diretor') throw new Error('Apenas o Diretor pode decidir.');
+      if (!['aprovado','rejeitado'].includes(decision)) throw new Error('Decisão inválida.');
+      let failure = 'Solicitação não está pendente ou compromisso não existe.';
+      const auditId = db.ref('auditoria_solicitacoes').push().key;
+      const processedAt = Date.now();
+      const result = await db.ref().transaction(root => {
+        if (!root || !root.solicitacoes_compromissos || !root.solicitacoes_compromissos[id]) return;
+        const req = root.solicitacoes_compromissos[id];
+        if (req.status !== 'pendente') { failure='Solicitação já processada.'; return; }
+        if (req.tipo !== 'editar' && req.tipo !== 'excluir') { failure='Tipo inválido.'; return; }
+        if (typeof req.compromissoId !== 'string' || !root.compromissos?.[req.compromissoId]) { failure='O compromisso original não existe mais.'; return; }
+        if (decision === 'aprovado' && req.tipo === 'editar') {
+          const changes = req.alteracoes;
+          if (!changes || typeof changes !== 'object' || !Object.keys(changes).length || Object.keys(changes).some(k=>!allowedFields.includes(k) || typeof changes[k] !== 'string')) { failure='Alterações inválidas.'; return; }
+          const ev = root.compromissos[req.compromissoId];
+          if (Object.prototype.hasOwnProperty.call(changes,'title') && !changes.title.trim()) { failure='Título vazio.'; return; }
+          Object.assign(ev, changes);
+        } else if (decision === 'aprovado' && req.tipo === 'excluir') {
+          delete root.compromissos[req.compromissoId];
+        }
+        req.status = decision;
+        // Metadados administrativos ficam no registro de auditoria separado.
+        if (!root.auditoria_solicitacoes) root.auditoria_solicitacoes = {};
+        root.auditoria_solicitacoes[auditId] = {
+          solicitacaoId:id, compromissoId:req.compromissoId, tipo:req.tipo,
+          decisao:decision, diretorUid:currentUser.uid, solicitanteUid:req.solicitanteUid,
+          processadoEm:processedAt
+        };
+        return root;
+      }, undefined, false);
+      if (!result.committed) throw new Error(failure);
     }
 
     function switchView(view) {
@@ -603,7 +647,7 @@ try {
 
         dayEvents.forEach(ev => {
           const style = categoryStyles[ev.category] || categoryStyles['Outros'];
-          html += `<div onclick="event.stopPropagation(); showEventDetails('${ev.id}')" class="${style.bg} ${style.text} border-l-4 ${style.border} rounded-md px-2 py-1 text-[11px] font-medium shadow-2xs hover:shadow-xs transition"><div class="font-bold truncate">${ev.startTime} ${ev.title}</div><div class="text-[9px] opacity-75 truncate"><i class="fa-solid fa-user text-[8px] mr-1"></i>${ev.createdBy || 'Anônimo'}</div></div>`;
+          html += `<div onclick="event.stopPropagation(); showEventDetails('${ev.id}')" class="${style.bg} ${style.text} border-l-4 ${style.border} rounded-md px-2 py-1 text-[11px] font-medium shadow-2xs hover:shadow-xs transition"><div class="font-bold truncate">${escapeHTML(ev.startTime)} ${escapeHTML(ev.title)}</div><div class="text-[9px] opacity-75 truncate"><i class="fa-solid fa-user text-[8px] mr-1"></i>${ev.createdBy || 'Anônimo'}</div></div>`;
         });
 
         html += `</div></div>`;
@@ -645,7 +689,7 @@ try {
           html += `<div class="border-r border-slate-100 p-1 hover:bg-slate-50/80 transition cursor-pointer" onclick="openNewEventModal('${dateStr}', '${timeLabel}')">`;
           cellEvents.forEach(ev => {
             const style = categoryStyles[ev.category] || categoryStyles['Outros'];
-            html += `<div onclick="event.stopPropagation(); showEventDetails('${ev.id}')" class="${style.bg} ${style.text} border-l-4 ${style.border} rounded-lg p-1.5 mb-1 text-xs shadow-2xs hover:shadow-xs transition"><div class="font-bold truncate">${ev.title}</div><div class="text-[10px] opacity-80">${ev.startTime} - ${ev.endTime}</div></div>`;
+            html += `<div onclick="event.stopPropagation(); showEventDetails('${ev.id}')" class="${style.bg} ${style.text} border-l-4 ${style.border} rounded-lg p-1.5 mb-1 text-xs shadow-2xs hover:shadow-xs transition"><div class="font-bold truncate">${escapeHTML(ev.title)}</div><div class="text-[10px] opacity-80">${escapeHTML(ev.startTime)} - ${escapeHTML(ev.endTime)}</div></div>`;
           });
           html += `</div>`;
         });
@@ -667,7 +711,7 @@ try {
         html += `<div class="space-y-3.5">`;
         dayEvents.forEach(ev => {
           const style = categoryStyles[ev.category] || categoryStyles['Outros'];
-          html += `<div onclick="showEventDetails('${ev.id}')" class="bg-white border-l-4 ${style.border} border border-slate-200/80 rounded-2xl p-4 shadow-2xs hover:shadow-md transition cursor-pointer flex items-center justify-between group"><div><div class="flex items-center gap-2 mb-1.5"><span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full ${style.badgeBg} ${style.text}">${ev.category}</span><span class="text-xs font-bold text-slate-600"><i class="fa-regular fa-clock mr-1 text-slate-400"></i>${ev.startTime} às ${ev.endTime}</span></div><h4 class="text-base font-bold text-slate-900 mb-1">${ev.title}</h4><div class="text-xs text-slate-500 font-medium">Agendado por: <strong class="text-slate-700">${ev.createdBy}</strong></div></div><i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-blue-600 transition"></i></div>`;
+          html += `<div onclick="showEventDetails('${ev.id}')" class="bg-white border-l-4 ${style.border} border border-slate-200/80 rounded-2xl p-4 shadow-2xs hover:shadow-md transition cursor-pointer flex items-center justify-between group"><div><div class="flex items-center gap-2 mb-1.5"><span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full ${style.badgeBg} ${style.text}">${escapeHTML(ev.category)}</span><span class="text-xs font-bold text-slate-600"><i class="fa-regular fa-clock mr-1 text-slate-400"></i>${escapeHTML(ev.startTime)} às ${escapeHTML(ev.endTime)}</span></div><h4 class="text-base font-bold text-slate-900 mb-1">${escapeHTML(ev.title)}</h4><div class="text-xs text-slate-500 font-medium">Agendado por: <strong class="text-slate-700">${escapeHTML(ev.createdBy)}</strong></div></div><i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-blue-600 transition"></i></div>`;
         });
         html += `</div>`;
       }
@@ -687,7 +731,7 @@ try {
         sortedEvents.forEach(ev => {
           const style = categoryStyles[ev.category] || categoryStyles['Outros'];
           const dateParts = ev.date.split('-');
-          html += `<div onclick="showEventDetails('${ev.id}')" class="bg-white border border-slate-200/80 rounded-2xl p-4 hover:shadow-md transition cursor-pointer flex items-center justify-between group"><div class="flex items-center gap-4"><div class="bg-slate-100/80 rounded-xl p-2.5 text-center min-w-[70px] border border-slate-200/60"><div class="text-xs font-bold text-slate-800">${dateParts[2]}/${dateParts[1]}</div><div class="text-[10px] text-slate-400 font-semibold">${dateParts[0]}</div></div><div><div class="flex items-center gap-2 mb-1"><span class="${style.badgeBg} ${style.text} text-[10px] font-bold px-2 py-0.5 rounded-full">${ev.category}</span><span class="text-xs font-semibold text-slate-500">${ev.startTime} - ${ev.endTime}</span></div><h4 class="text-sm font-bold text-slate-900">${ev.title}</h4><span class="text-xs text-slate-500">Agendado por: <strong class="text-slate-700">${ev.createdBy}</strong></span></div></div><i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-blue-600 transition"></i></div>`;
+          html += `<div onclick="showEventDetails('${ev.id}')" class="bg-white border border-slate-200/80 rounded-2xl p-4 hover:shadow-md transition cursor-pointer flex items-center justify-between group"><div class="flex items-center gap-4"><div class="bg-slate-100/80 rounded-xl p-2.5 text-center min-w-[70px] border border-slate-200/60"><div class="text-xs font-bold text-slate-800">${dateParts[2]}/${dateParts[1]}</div><div class="text-[10px] text-slate-400 font-semibold">${dateParts[0]}</div></div><div><div class="flex items-center gap-2 mb-1"><span class="${style.badgeBg} ${style.text} text-[10px] font-bold px-2 py-0.5 rounded-full">${escapeHTML(ev.category)}</span><span class="text-xs font-semibold text-slate-500">${escapeHTML(ev.startTime)} - ${escapeHTML(ev.endTime)}</span></div><h4 class="text-sm font-bold text-slate-900">${escapeHTML(ev.title)}</h4><span class="text-xs text-slate-500">Agendado por: <strong class="text-slate-700">${escapeHTML(ev.createdBy)}</strong></span></div></div><i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-blue-600 transition"></i></div>`;
         });
         html += `</div>`;
       }
@@ -728,6 +772,7 @@ try {
     }
 
     function openNewEventModal(defaultDate = null, defaultStartTime = '09:00') {
+      if (!currentUserRole) return;
       document.getElementById('eventId').value = '';
       document.getElementById('modalTitle').querySelector('span').textContent = 'Agendar Compromisso';
       document.getElementById('inputTitle').value = '';
@@ -752,7 +797,7 @@ try {
       document.getElementById('detailsModal').classList.add('hidden'); 
     }
 
-    function handleFormSubmit(e) {
+    async function handleFormSubmit(e) {
       e.preventDefault();
       const id = document.getElementById('eventId').value;
       const eventData = {
@@ -765,8 +810,10 @@ try {
         description: document.getElementById('inputDescription').value
       };
 
-      saveEventToStorage(eventData, id || null);
-      closeModal();
+      try {
+        await saveEventToStorage(eventData, id || null);
+        closeModal();
+      } catch (error) { alert('Não foi possível salvar: ' + error.message); }
     }
 
     function showEventDetails(id) {
@@ -784,7 +831,7 @@ try {
       
       const dateParts = ev.date.split('-');
       document.getElementById('detailDate').textContent = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
-      document.getElementById('detailTime').textContent = `${ev.startTime} às ${ev.endTime}`;
+      document.getElementById('detailTime').textContent = `${escapeHTML(ev.startTime)} às ${escapeHTML(ev.endTime)}`;
       document.getElementById('detailCreatedBy').textContent = ev.createdBy || 'Não informado';
       
       const descContainer = document.getElementById('detailDescContainer');
@@ -816,19 +863,19 @@ try {
       document.getElementById('eventModal').classList.remove('hidden');
     }
 
-    function deleteFromDetails() {
+    async function deleteFromDetails() {
       if (!currentActiveEvent) return;
       if (confirm('Tem certeza que deseja excluir este agendamento?')) {
-        deleteEventFromStorage(currentActiveEvent.id);
-        closeDetailsModal();
+        try { await deleteEventFromStorage(currentActiveEvent.id); closeDetailsModal(); }
+        catch (error) { alert('Não foi possível continuar: ' + error.message); }
       }
     }
 
-    function deleteCurrentEvent() {
+    async function deleteCurrentEvent() {
       const id = document.getElementById('eventId').value;
       if (id && confirm('Tem certeza que deseja excluir este agendamento?')) {
-        deleteEventFromStorage(id);
-        closeModal();
+        try { await deleteEventFromStorage(id); closeModal(); }
+        catch (error) { alert('Não foi possível continuar: ' + error.message); }
       }
     }
   </script>
