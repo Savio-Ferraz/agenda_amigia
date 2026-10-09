@@ -267,14 +267,26 @@
       appId: "1:886282109249:web:f76831b8d033fedbe221c0"
     };
 
-    let db = null, eventsRef = null;
-    try {
-      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-      db = firebase.database();
-      eventsRef = db.ref("compromissos");
-    } catch(e) { 
-      console.warn("Realtime Database operando via Local Storage:", e); 
-    }
+    let db = null;
+let auth = null;
+let eventsRef = null;
+let currentUser = null;
+let currentUserRole = null;
+
+try {
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  auth = firebase.auth();
+  db = firebase.database();
+  eventsRef = db.ref("compromissos");
+
+  console.log("Firebase Authentication inicializado.");
+
+} catch (error) {
+  console.error("Erro ao inicializar Firebase:", error);
+}
 
     let events = [];
     let currentDate = new Date();
