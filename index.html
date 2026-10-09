@@ -272,6 +272,45 @@ let auth = null;
 let eventsRef = null;
 let currentUser = null;
 let currentUserRole = null;
+    // Monitoramento da autenticação e identificação do perfil
+function monitorarAutenticacao() {
+  if (!auth || !db) {
+    console.error("Firebase Authentication indisponível.");
+    return;
+  }
+
+  auth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+    currentUserRole = null;
+
+    if (!user) {
+      console.log("Nenhum usuário autenticado.");
+      return;
+    }
+
+    try {
+      const snapshot = await db.ref("usuarios/" + user.uid + "/role").once("value");
+
+      // Evita utilizar um resultado de uma sessão anterior
+      if (auth.currentUser?.uid !== user.uid) return;
+
+      const role = snapshot.val();
+
+      if (role !== "Diretor" && role !== "Colaborador") {
+        console.error("Perfil não autorizado.");
+        return;
+      }
+
+      currentUserRole = role;
+
+      console.log("Usuário autenticado:", user.uid);
+      console.log("Perfil identificado:", currentUserRole);
+
+    } catch (error) {
+      console.error("Erro ao consultar perfil:", error);
+    }
+  });
+}
 
 try {
   if (!firebase.apps.length) {
@@ -283,6 +322,7 @@ try {
   eventsRef = db.ref("compromissos");
 
   console.log("Firebase Authentication inicializado.");
+  monitorarAutenticacao();
 
 } catch (error) {
   console.error("Erro ao inicializar Firebase:", error);
