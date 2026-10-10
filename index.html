@@ -116,7 +116,7 @@
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
       <img src="logo.png" alt="Amigia" class="w-16 h-16 object-contain mx-auto mb-4">
       <h2 class="text-2xl font-extrabold text-slate-900 text-center">Agenda Amigia</h2>
-      <p id="loginHelp" class="text-sm text-slate-500 text-center mb-6 mt-2">Acesso do Diretor. Utilize sua conta real do Firebase Authentication.</p>
+      <p id="loginHelp" class="text-sm text-slate-500 text-center mb-6 mt-2">Entre com sua conta autorizada de Diretor ou Colaborador.</p>
       <form id="loginForm" class="space-y-4">
         <label class="block text-sm font-semibold">E-mail<input id="loginEmail" type="email" autocomplete="username" required class="block w-full mt-1 p-3 rounded-xl border border-slate-300"></label>
         <label class="block text-sm font-semibold">Senha<input id="loginPassword" type="password" autocomplete="current-password" required class="block w-full mt-1 p-3 rounded-xl border border-slate-300"></label>
@@ -157,6 +157,12 @@
 
     <!-- LINHA 2 - VISUALIZAÇÕES E AÇÕES -->
     <div class="flex flex-wrap items-center gap-3">
+      <div class="flex items-center gap-2 bg-slate-50 border border-blue-200 p-1 rounded-xl">
+        <label for="agendaFilter" class="text-xs font-semibold text-slate-600 px-2">Visualizar:</label>
+        <select id="agendaFilter" onchange="renderCurrentView()" class="bg-white rounded-lg px-3 py-2 text-xs font-bold border border-slate-200">
+          <option value="all">Todas as agendas</option><option value="savio">Agenda de Savio</option><option value="lucas">Agenda de Lucas</option>
+        </select>
+      </div>
       <div class="bg-slate-100/80 p-1 rounded-xl border border-slate-200/80 flex text-xs font-semibold">
         <button data-view="month" onclick="switchView('month')" class="view-btn px-3 py-1.5 rounded-lg bg-white shadow-xs text-blue-600 font-bold transition">Mês</button>
         <button data-view="week" onclick="switchView('week')" class="view-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Semana</button>
@@ -281,6 +287,12 @@
           </div>
         </div>
 
+        <div>
+          <label for="inputAgendaOwner" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Agenda de destino *</label>
+          <select id="inputAgendaOwner" required class="w-full bg-blue-50 border border-blue-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold">
+            <option value="savio">Agenda de Savio Ferraz</option><option value="lucas">Agenda de Lucas Silva</option>
+          </select>
+        </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Responsável *</label>
@@ -340,6 +352,11 @@
   <div id="requestsPanel" class="hidden fixed inset-0 z-[70] bg-slate-900/60 p-4 flex items-center justify-center">
     <section class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto p-6" aria-label="Solicitações">
       <div class="flex items-center justify-between mb-4"><h2 class="text-xl font-extrabold">Solicitações de compromissos</h2><button onclick="closeRequestsPanel()" class="px-3 py-1 rounded-lg bg-slate-100">Fechar</button></div>
+      <div class="flex flex-wrap gap-2 mb-4" role="group" aria-label="Filtrar solicitações">
+        <button id="requestsPendingTab" onclick="setRequestsTab('pendente')" class="px-4 py-2 rounded-lg text-sm font-semibold bg-blue-600 text-white">Pendentes</button>
+        <button id="requestsHistoryTab" onclick="setRequestsTab('historico')" class="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-700">Histórico</button>
+      </div>
+      <p id="requestsSummary" class="text-xs text-slate-500 mb-3"></p>
       <div id="requestsList" class="space-y-3"></div>
     </section>
   </div>
@@ -358,7 +375,33 @@
 
     let db = null, auth = null, eventsRef = null, currentUser = null, currentUserRole = null;
     let requestsRef = null, requestsListenerQuery = null, requests = {};
+    let requestsTab = 'pendente';
     let authGeneration = 0;
+    const DIRECTOR_UID = 'dI1GVPYB4AZbRO6ZFDskCsL5uFv1';
+    let lucasUid = null;
+    const ownerUid = (key) => key === 'lucas' ? lucasUid : DIRECTOR_UID;
+    function updateAgendaLabels() {
+      const picker = document.getElementById('agendaFilter');
+      if (!picker || !currentUserRole) return;
+      picker.querySelector('[value="savio"]').textContent = currentUserRole === 'Diretor' ? 'Minha Agenda — Savio' : 'Agenda de Savio';
+      picker.querySelector('[value="lucas"]').textContent = currentUserRole === 'Colaborador' ? 'Minha Agenda — Lucas' : 'Agenda do Lucas';
+      picker.value = currentUserRole === 'Colaborador' ? 'lucas' : 'savio';
+      renderCurrentView();
+    }
+    const eventOwner = (ev) => ev.agendaOwnerUid ? (ev.agendaOwnerUid === DIRECTOR_UID ? 'savio' : 'lucas') : 'savio';
+    // Sem campo de destino em registros antigos: mostram na agenda Savio, sem migrar nem apagar.
+    async function discoverLucasUid() {
+      if (currentUserRole !== 'Diretor') { lucasUid = currentUser.uid; return; }
+      const snap = await db.ref('usuarios').once('value');
+      const members = snap.val() || {};
+      const found = Object.entries(members).find(([uid, u]) => uid !== DIRECTOR_UID && u?.role === 'Colaborador' && /lucas/i.test(String(u.nome || '')));
+      if (found) lucasUid = found[0];
+      else {
+        const collaborators = Object.entries(members).filter(([uid, u]) => uid !== DIRECTOR_UID && u?.role === 'Colaborador');
+        if (collaborators.length === 1) lucasUid = collaborators[0][0];
+      }
+      if (!lucasUid) throw new Error('Lucas não encontrado em /usuarios. Não é possível gravar na agenda dele.');
+    }
     try {
       if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
       auth = firebase.auth();
@@ -479,7 +522,7 @@
         const snap = await db.ref('usuarios/' + user.uid + '/role').once('value');
         if (generation !== authGeneration || auth.currentUser?.uid !== user.uid) return;
         const role = snap.val();
-        if (role !== 'Diretor') {
+        if (role !== 'Diretor' && role !== 'Colaborador') {
           setLoginError('Sua conta ainda não possui acesso à Agenda.');
           await auth.signOut();
           return;
@@ -490,9 +533,13 @@
         document.getElementById('btnSignOut').classList.remove('hidden');
         // Recuperação: aprovação desativada até validar regras de produção.
         document.getElementById('userRoleIndicator').textContent = role;
-        globalUserNameInput.value = 'Savio Ferraz';
+        globalUserNameInput.value = role === 'Diretor' ? 'Savio Ferraz' : 'Lucas Silva';
         globalUserNameInput.readOnly = true;
-        initDataSync(); // Solicitações desativadas na recuperação de produção.
+        updateAgendaLabels();
+        try { await discoverLucasUid(); } catch(err) { console.warn(err.message); }
+        document.getElementById('btnRequests').classList.remove('hidden');
+        initDataSync();
+        initRequestsSync();
         if (window.crmDraft) {
           openNewEventModal();
           document.getElementById('inputTitle').value = window.crmDraft.title;
@@ -535,7 +582,10 @@
       } else if (id) {
         await eventsRef.child(id).update(eventData);
       } else {
-        await eventsRef.push().set({ ...eventData, createdByUid: currentUser.uid });
+        const dest = document.getElementById('inputAgendaOwner').value;
+        const targetUid = ownerUid(dest);
+        if (!targetUid) throw new Error('Agenda do Lucas indisponível: confira o cadastro dele no Firebase.');
+        await eventsRef.push().set({ ...eventData, createdByUid: currentUser.uid, agendaOwnerUid: targetUid });
       }
     }
     async function deleteEventFromStorage(id) {
@@ -562,23 +612,43 @@
       await requestsRef.push().set(payload);
       alert('Sua solicitação foi enviada ao Diretor.');
     }
-    function openRequestsPanel() { if (true) { alert('Aprovações em implantação.'); return; } if (!currentUserRole) return; document.getElementById('requestsPanel').classList.remove('hidden'); renderRequests(); }
+    function openRequestsPanel() { if (!currentUserRole) return; requestsTab = 'pendente'; document.getElementById('requestsPanel').classList.remove('hidden'); renderRequests(); }
     function closeRequestsPanel() { document.getElementById('requestsPanel').classList.add('hidden'); }
+    function setRequestsTab(tab) { requestsTab = tab; renderRequests(); }
+    const changeFieldLabels = {title:'Título',date:'Data',startTime:'Horário inicial',endTime:'Horário final',category:'Categoria',description:'Observações',agendaOwnerUid:'Agenda de destino',createdBy:'Criado por'};
+    function displayChangeValue(key, value) {
+      if (key === 'agendaOwnerUid') return value === DIRECTOR_UID ? 'Agenda de Savio' : (value === lucasUid ? 'Agenda de Lucas' : 'Outra agenda');
+      if (value === null || value === undefined || value === '') return '(vazio)';
+      return String(value);
+    }
     function renderRequests() {
       const list = document.getElementById('requestsList');
-      const entries = Object.entries(requests).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
-      list.innerHTML = entries.length ? '' : '<p class="text-sm text-slate-500">Nenhuma solicitação encontrada.</p>';
+      const all = Object.entries(requests).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
+      const pending = all.filter(([,r])=>r.status==='pendente');
+      const entries = all.filter(([,r])=>requestsTab === 'pendente' ? r.status==='pendente' : r.status!=='pendente');
+      for (const [tab,id] of [['pendente','requestsPendingTab'],['historico','requestsHistoryTab']]) {
+        const btn = document.getElementById(id);
+        btn.className = 'px-4 py-2 rounded-lg text-sm font-semibold ' + (tab===requestsTab ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700');
+        btn.textContent = tab==='pendente' ? `Pendentes (${pending.length})` : `Histórico (${all.length-pending.length})`;
+      }
+      document.getElementById('requestsSummary').textContent = requestsTab === 'pendente' ? 'Pedidos aguardando decisão do Diretor' : 'Pedidos já aprovados ou rejeitados';
+      list.innerHTML = '';
+      if (!entries.length) { list.innerHTML = '<p class="text-sm text-slate-500 bg-slate-50 rounded-xl p-5">Nenhuma solicitação nesta categoria.</p>'; return; }
       for (const [id,req] of entries) {
-        const card = document.createElement('div');
-        card.className = 'rounded-xl border border-slate-200 p-4 bg-slate-50';
+        const card = document.createElement('article');
+        card.className = 'rounded-xl border border-slate-200 p-4 bg-white shadow-sm space-y-2';
         const current = events.find(e=>e.id===req.compromissoId);
         const time = Number.isFinite(req.criadoEm) ? new Date(req.criadoEm).toLocaleString('pt-BR') : '-';
-        const legacyNotice = req.status === 'pendente' && !req.versaoOriginal ? '<p class="text-xs font-semibold text-amber-700 mt-2">Pedido anterior à verificação de versão: não pode ser aprovado. Rejeite e solicite novamente.</p>' : '';
-        const changes = req.tipo === 'editar' ? '<p class="mt-2 text-xs font-semibold">Alterações solicitadas:</p><pre class="text-xs whitespace-pre-wrap break-words">' + escapeHTML(JSON.stringify(req.alteracoes || {}, null, 2)) + '</pre>' : '';
-        card.innerHTML = `<p class="font-bold text-slate-900">${escapeHTML(req.tipo === 'editar' ? 'Editar' : 'Excluir')} — ${escapeHTML(current?.title || req.compromissoId)}</p><p class="text-xs text-slate-600 mt-1">Status: ${escapeHTML(req.status)} • ${escapeHTML(time)}</p><p class="text-sm mt-2">Motivo: ${escapeHTML(req.motivo)}</p>${changes}${legacyNotice}`;
+        const statusLabel = {pendente:'Aguardando aprovação',processando:'Em processamento',aprovado:'Aprovado',rejeitado:'Rejeitado'}[req.status] || 'Status desconhecido';
+        const statusClass = {pendente:'bg-amber-50 text-amber-800',processando:'bg-blue-50 text-blue-800',aprovado:'bg-emerald-50 text-emerald-800',rejeitado:'bg-rose-50 text-rose-800'}[req.status] || 'bg-slate-100 text-slate-700';
+        const title = current?.title || req.tituloOriginal || 'Compromisso original não disponível';
+        const changes = Object.entries(req.alteracoes || {}).map(([field,value])=>`<div class="flex gap-3 py-1.5 border-b border-slate-100 last:border-0"><span class="text-slate-500 w-32 shrink-0">${escapeHTML(changeFieldLabels[field] || field)}</span><span class="font-semibold text-slate-800 break-words">${escapeHTML(displayChangeValue(field,value))}</span></div>`).join('');
+        const legacyNotice = req.status==='pendente' && !req.versaoOriginal ? '<p class="text-xs text-amber-800 bg-amber-50 rounded-lg p-3">Solicitação antiga sem verificação de versão. Não é seguro aprová-la; rejeite e peça uma nova solicitação.</p>' : '';
+        card.innerHTML = `<div class="flex flex-wrap items-center justify-between gap-2"><span class="text-xs font-bold uppercase tracking-wide text-slate-500">${req.tipo==='editar'?'Solicitação de alteração':'Solicitação de exclusão'}</span><span class="rounded-full px-3 py-1 text-xs font-semibold ${statusClass}">${escapeHTML(statusLabel)}</span></div><h3 class="font-bold text-slate-900 text-base">${escapeHTML(title)}</h3><p class="text-xs text-slate-500">${escapeHTML(time)}</p><p class="text-sm text-slate-700"><strong>Motivo:</strong> ${escapeHTML(req.motivo || 'Não informado')}</p>${req.tipo==='editar' ? `<div class="bg-slate-50 rounded-lg p-3"><p class="font-semibold text-xs text-slate-500 mb-1">Alterações solicitadas</p>${changes || '<p class="text-sm text-slate-500">Nenhuma alteração informada.</p>'}</div>` : ''}${legacyNotice}`;
         if (currentUserRole === 'Diretor' && req.status === 'pendente') {
-          const actions = document.createElement('div'); actions.className = 'flex gap-2 mt-3';
-          for (const [decision, caption, klass] of [['aprovado','Aprovar','bg-emerald-600'],['rejeitado','Rejeitar','bg-rose-600']]) {
+          const actions = document.createElement('div'); actions.className = 'flex flex-wrap gap-2 pt-2';
+          const choices = req.versaoOriginal ? [['aprovado','Aprovar','bg-emerald-600'],['rejeitado','Rejeitar','bg-rose-600']] : [['rejeitado','Rejeitar pedido antigo','bg-rose-600']];
+          for (const [decision, caption, klass] of choices) {
             const btn = document.createElement('button'); btn.textContent = caption;
             btn.className = `${klass} text-white rounded-lg py-2 px-4 text-xs font-bold`;
             btn.onclick = async () => {
@@ -595,66 +665,75 @@
         list.appendChild(card);
       }
     }
-    // V4 teste: operação multipath atômica após validação do estado atual.
-    // ATENÇÃO: a validação e a gravação não constituem uma transação CAS.
-    // Pode haver corrida entre diretores/abas; NÃO utilizar em produção.
+    // Controle de decisão concorrente: apenas uma aba pode assumir o pedido.
+    // O lock é transacional por solicitação. A finalização multipath é atômica.
+    // Limite: não equivale a CAS entre caminhos diferentes para edições externas.
     async function decideRequest(id, decision) {
       requireSession();
       if (currentUserRole !== 'Diretor') throw new Error('Apenas o Diretor pode decidir.');
       if (!['aprovado','rejeitado'].includes(decision)) throw new Error('Decisão inválida.');
-
       const requestRef = requestsRef.child(id);
-      const requestSnapshot = await requestRef.once('value');
-      const req = requestSnapshot.val();
-
-      if (!req) throw new Error('Solicitação não encontrada.');
-      if (req.status !== 'pendente') throw new Error('Solicitação já processada.');
-      if (req.tipo !== 'editar' && req.tipo !== 'excluir')
-        throw new Error('Tipo de solicitação inválido.');
-      if (typeof req.compromissoId !== 'string' || !req.compromissoId)
-        throw new Error('Identificador do compromisso inválido.');
-
-      const eventSnapshot = await eventsRef.child(req.compromissoId).once('value');
-      const currentEvent = eventSnapshot.val();
-      const updates = {};
-
-      if (decision === 'aprovado') {
-        if (!currentEvent) throw new Error('O compromisso original não existe mais.');
-        if (typeof req.versaoOriginal !== 'string' ||
-            req.versaoOriginal !== snapshotEvent(currentEvent)) {
-          throw new Error('O compromisso mudou ou o pedido é antigo. Rejeite e solicite novamente.');
+      const claimToken = currentUser.uid + '_' + db.ref().push().key;
+      // Firebase transaction pode repetir o callback: sem efeitos colaterais.
+      const claimed = await requestRef.transaction(value => {
+        if (!value || value.status !== 'pendente') return;
+        return {...value, status: 'processando', processamentoToken: claimToken};
+      }, undefined, false);
+      if (!claimed.committed) throw new Error('Solicitação já está sendo processada ou foi decidida. Atualize a tela.');
+      let finalized = false;
+      try {
+        const req = claimed.snapshot.val();
+        if (!req || req.processamentoToken !== claimToken) throw new Error('Não foi possível obter o bloqueio exclusivo.');
+        if (!['editar','excluir'].includes(req.tipo) || typeof req.compromissoId !== 'string' || !req.compromissoId) throw new Error('Solicitação inválida.');
+        const evRef = eventsRef.child(req.compromissoId);
+        const currentEvent = (await evRef.once('value')).val();
+        const updates = {};
+        if (decision === 'aprovado') {
+          if (!currentEvent || typeof req.versaoOriginal !== 'string' || req.versaoOriginal !== snapshotEvent(currentEvent))
+            throw new Error('O compromisso mudou. Rejeite este pedido e solicite outro.');
+          if (req.tipo === 'editar') {
+            const changes = req.alteracoes;
+            if (!changes || typeof changes !== 'object' || Array.isArray(changes) || !Object.keys(changes).length ||
+                Object.keys(changes).some(k => !allowedFields.includes(k) || typeof changes[k] !== 'string'))
+              throw new Error('Alterações inválidas.');
+            if (Object.hasOwn(changes,'title') && !changes.title.trim()) throw new Error('Título vazio.');
+            for (const [field,value] of Object.entries(changes)) updates[`compromissos/${req.compromissoId}/${field}`]=value;
+          } else updates[`compromissos/${req.compromissoId}`]=null;
         }
-        if (req.tipo === 'editar') {
-          const changes = req.alteracoes;
-          if (!changes || typeof changes !== 'object' || Array.isArray(changes) ||
-              !Object.keys(changes).length ||
-              Object.keys(changes).some(k => !allowedFields.includes(k) ||
-                typeof changes[k] !== 'string')) {
-            throw new Error('Alterações inválidas.');
-          }
-          if (Object.hasOwn(changes, 'title') && !changes.title.trim())
-            throw new Error('Título vazio.');
-          for (const [field, value] of Object.entries(changes)) {
-            updates[`compromissos/${req.compromissoId}/${field}`] = value;
-          }
-        } else {
-          updates[`compromissos/${req.compromissoId}`] = null;
+        // Releitura após a preparação: protege contra alterações que já foram efetivadas.
+        const latestEvent = (await evRef.once('value')).val();
+        if (decision === 'aprovado' && (!latestEvent || snapshotEvent(latestEvent) !== req.versaoOriginal))
+          throw new Error('O compromisso mudou durante a análise. Rejeite e solicite outro pedido.');
+        const latestReq = (await requestRef.once('value')).val();
+        if (!latestReq || latestReq.status !== 'processando' || latestReq.processamentoToken !== claimToken)
+          throw new Error('A solicitação foi alterada durante a aprovação.');
+        updates[`solicitacoes_compromissos/${id}/status`] = decision;
+        updates[`solicitacoes_compromissos/${id}/processamentoToken`] = null;
+        const auditId = db.ref('auditoria_solicitacoes').push().key;
+        updates[`auditoria_solicitacoes/${auditId}`] = {
+          solicitacaoId: id, compromissoId: req.compromissoId, tipo: req.tipo,
+          decisao: decision, diretorUid: currentUser.uid, solicitanteUid: req.solicitanteUid,
+          processadoEm: firebase.database.ServerValue.TIMESTAMP
+        };
+        await db.ref().update(updates);
+        finalized = true;
+      } catch (error) {
+        // Solta o bloqueio apenas se ainda pertencer a esta operação.
+        // Se houve falha de rede após commit, releitura impede desfazer decisão final.
+        try {
+          await requestRef.transaction(value => {
+            if (!value || value.status !== 'processando' || value.processamentoToken !== claimToken) return;
+            const restored = {...value, status:'pendente'};
+            delete restored.processamentoToken;
+            return restored;
+          }, undefined, false);
+        } catch (unlockError) {
+          console.error('Não foi possível liberar solicitação em processamento:',unlockError);
+          throw new Error(error.message + ' O pedido pode permanecer bloqueado; verifique o status antes de tentar novamente.');
         }
+        throw error;
       }
-      // Operação multipath: todos os caminhos são gravados ou nenhum é.
-      // A conferência acima NÃO impede concorrência entre a leitura e update.
-      updates[`solicitacoes_compromissos/${id}/status`] = decision;
-      const auditId = db.ref('auditoria_solicitacoes').push().key;
-      updates[`auditoria_solicitacoes/${auditId}`] = {
-        solicitacaoId: id,
-        compromissoId: req.compromissoId,
-        tipo: req.tipo,
-        decisao: decision,
-        diretorUid: currentUser.uid,
-        solicitanteUid: req.solicitanteUid,
-        processadoEm: firebase.database.ServerValue.TIMESTAMP
-      };
-      await db.ref().update(updates);
+      if (!finalized) throw new Error('Não foi possível concluir a decisão.');
     }
 
     function switchView(view) {
@@ -684,12 +763,14 @@
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
       const checkedCategories = Array.from(document.querySelectorAll('.filter-checkbox:checked')).map(cb => cb.value);
 
+      const chosenAgenda = document.getElementById('agendaFilter').value;
       return events.filter(e => {
+        const matchesAgenda = chosenAgenda === 'all' || eventOwner(e) === chosenAgenda;
         const matchesCategory = checkedCategories.includes('all') || checkedCategories.includes(e.category);
         const matchesSearch = !searchTerm || 
           (e.title && e.title.toLowerCase().includes(searchTerm)) || 
           (e.createdBy && e.createdBy.toLowerCase().includes(searchTerm));
-        return matchesCategory && matchesSearch;
+        return matchesAgenda && matchesCategory && matchesSearch;
       });
     }
 
@@ -876,6 +957,7 @@
     function openNewEventModal(defaultDate = null, defaultStartTime = '09:00') {
       if (!currentUserRole) return;
       document.getElementById('eventId').value = '';
+      document.getElementById('inputAgendaOwner').disabled = false;
       document.getElementById('modalTitle').querySelector('span').textContent = 'Agendar Compromisso';
       document.getElementById('inputTitle').value = '';
       document.getElementById('inputDate').value = defaultDate || formatDate(currentDate);
@@ -884,6 +966,8 @@
       const [h, m] = defaultStartTime.split(':').map(Number);
       document.getElementById('inputEndTime').value = `${(h + 1).toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
 
+      const activeFilter = document.getElementById('agendaFilter').value;
+      document.getElementById('inputAgendaOwner').value = activeFilter === 'lucas' ? 'lucas' : 'savio';
       document.getElementById('inputCreatedBy').value = globalUserNameInput.value || '';
       document.getElementById('inputCategory').value = 'Atendimento';
       document.getElementById('inputDescription').value = '';
@@ -907,12 +991,17 @@
         date: document.getElementById('inputDate').value,
         startTime: document.getElementById('inputStartTime').value,
         endTime: document.getElementById('inputEndTime').value,
-        createdBy: document.getElementById('inputCreatedBy').value,
+        createdBy: id ? (events.find(ev => ev.id === id)?.createdBy || '') : globalUserNameInput.value,
         category: document.getElementById('inputCategory').value,
         description: document.getElementById('inputDescription').value
       };
 
       try {
+        if (id && currentUserRole === 'Diretor') {
+          const targetUid = ownerUid(document.getElementById('inputAgendaOwner').value);
+          if (!targetUid) throw new Error('Agenda de destino indisponível.');
+          eventData.agendaOwnerUid = targetUid;
+        }
         await saveEventToStorage(eventData, id || null);
         closeModal();
       } catch (error) { alert('Não foi possível salvar: ' + error.message); }
@@ -934,7 +1023,7 @@
       const dateParts = ev.date.split('-');
       document.getElementById('detailDate').textContent = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
       document.getElementById('detailTime').textContent = `${escapeHTML(ev.startTime)} às ${escapeHTML(ev.endTime)}`;
-      document.getElementById('detailCreatedBy').textContent = ev.createdBy || 'Não informado';
+      document.getElementById('detailCreatedBy').textContent = (ev.createdBy || 'Não informado') + ' · Agenda: ' + (eventOwner(ev)==='savio' ? 'Savio' : 'Lucas');
       
       const descContainer = document.getElementById('detailDescContainer');
       if (ev.description && ev.description.trim() !== '') {
@@ -957,6 +1046,8 @@
       document.getElementById('inputDate').value = currentActiveEvent.date;
       document.getElementById('inputStartTime').value = currentActiveEvent.startTime;
       document.getElementById('inputEndTime').value = currentActiveEvent.endTime;
+      document.getElementById('inputAgendaOwner').value = eventOwner(currentActiveEvent);
+      document.getElementById('inputAgendaOwner').disabled = currentUserRole === 'Colaborador';
       document.getElementById('inputCreatedBy').value = currentActiveEvent.createdBy;
       document.getElementById('inputCategory').value = currentActiveEvent.category;
       document.getElementById('inputDescription').value = currentActiveEvent.description || '';
