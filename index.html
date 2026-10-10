@@ -42,14 +42,81 @@
     .amigia-gradient {
       background: linear-gradient(135deg, #f43f5e 0%, #f59e0b 50%, #2563eb 100%);
     }
-  </style>
+  
+/* CABECALHO COMPACTO AMIGIA */
+#appHeader {
+  display: grid !important;
+  grid-template-columns: minmax(280px, 1fr) auto;
+  align-items: center;
+  gap: 8px 24px !important;
+  padding: 10px 24px !important;
+  min-height: auto;
+}
+
+#appHeader > div:nth-child(1) {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#appHeader > div:nth-child(2) {
+  grid-column: 2;
+  grid-row: 1;
+  justify-content: flex-end;
+}
+
+#appHeader > div:nth-child(3) {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px !important;
+  width: 100%;
+}
+
+#appHeader > div:nth-child(3) > div:nth-child(3) {
+  margin-left: auto;
+}
+
+#appHeader h1 {
+  margin: 0;
+}
+
+#appHeader button,
+#appHeader a {
+  white-space: nowrap;
+}
+
+@media (max-width: 1150px) {
+  #appHeader {
+    grid-template-columns: 1fr;
+    gap: 10px !important;
+  }
+
+  #appHeader > div:nth-child(1),
+  #appHeader > div:nth-child(2),
+  #appHeader > div:nth-child(3) {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  #appHeader > div:nth-child(2) {
+    justify-content: flex-start;
+  }
+
+  #appHeader > div:nth-child(3) > div:nth-child(3) {
+    margin-left: 0;
+  }
+}
+
+</style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans h-screen flex flex-col overflow-hidden antialiased">
   <div id="loginScreen" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
       <img src="logo.png" alt="Amigia" class="w-16 h-16 object-contain mx-auto mb-4">
       <h2 class="text-2xl font-extrabold text-slate-900 text-center">Agenda Amigia</h2>
-      <p id="loginHelp" class="text-sm text-slate-500 text-center mb-6 mt-2">Entre com sua conta autorizada.</p>
+      <p id="loginHelp" class="text-sm text-slate-500 text-center mb-6 mt-2">Acesso do Diretor. Utilize sua conta real do Firebase Authentication.</p>
       <form id="loginForm" class="space-y-4">
         <label class="block text-sm font-semibold">E-mail<input id="loginEmail" type="email" autocomplete="username" required class="block w-full mt-1 p-3 rounded-xl border border-slate-300"></label>
         <label class="block text-sm font-semibold">Senha<input id="loginPassword" type="password" autocomplete="current-password" required class="block w-full mt-1 p-3 rounded-xl border border-slate-300"></label>
@@ -63,161 +130,59 @@
   <div class="h-1 w-full amigia-gradient z-30"></div>
 
   <!-- TOP HEADER / NAVBAR -->
-<header class="bg-white border-b border-slate-200/80 px-5 py-4 shadow-xs shrink-0 z-20">
-  <div class="flex flex-col gap-4">
-
-    <!-- LINHA 1 -->
-    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-      
-      <!-- LOGO + TÍTULO -->
-      <div class="flex items-center gap-3.5 min-w-0">
-        <div class="w-11 h-11 rounded-2xl bg-slate-100 border border-slate-200/60 flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
-          <img
-            src="logo.png"
-            alt="Amigia Logo"
-            class="w-full h-full object-contain p-1"
-            onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-full rounded-2xl flex items-center justify-center amigia-gradient\'><i class=\'fa-solid fa-heart text-white text-base\'></i></div>';"
-          >
-        </div>
-
-        <div class="min-w-0">
-          <h1 class="font-bold text-xl leading-tight text-slate-900 flex flex-wrap items-center gap-2">
-            <span>Agenda Amigia</span>
-            <span class="bg-blue-50 text-blue-700 border border-blue-200/60 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold">
-              Educação
-            </span>
-          </h1>
-          <p class="text-sm text-slate-500 font-medium leading-tight">
-            Gestão Integrada de Atendimentos & Agenda Pedagógica
-          </p>
-        </div>
+  <header id="appHeader" class="bg-white border-b border-slate-200/80 px-6 py-3 flex flex-col gap-3 shadow-xs shrink-0 z-20">
+    <!-- LOGO & TÍTULO -->
+    <div class="flex items-center gap-3.5">
+      <div class="w-10 h-10 rounded-2xl bg-slate-100 border border-slate-200/60 flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
+        <img src="logo.png" alt="Amigia Logo" class="w-full h-full object-contain p-1" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-full rounded-2xl flex items-center justify-center amigia-gradient\'><i class=\'fa-solid fa-heart text-white text-base\'></i></div>';">
       </div>
-
-      <!-- NAVEGAÇÃO TEMPORAL -->
-      <div class="flex flex-wrap items-center gap-3">
-        <button
-          id="btnToday"
-          onclick="goToToday()"
-          class="px-3.5 py-2 border border-slate-300/80 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100/80 active:scale-95 transition shadow-xs"
-        >
-          Hoje
-        </button>
-
-        <div class="flex items-center bg-slate-100/80 rounded-xl p-0.5 border border-slate-200/80">
-          <button
-            id="btnPrev"
-            onclick="navigatePeriod(-1)"
-            class="w-9 h-9 flex items-center justify-center text-slate-600 hover:bg-white hover:shadow-xs rounded-lg transition active:scale-90"
-          >
-            <i class="fa-solid fa-chevron-left text-xs"></i>
-          </button>
-          <button
-            id="btnNext"
-            onclick="navigatePeriod(1)"
-            class="w-9 h-9 flex items-center justify-center text-slate-600 hover:bg-white hover:shadow-xs rounded-lg transition active:scale-90"
-          >
-            <i class="fa-solid fa-chevron-right text-xs"></i>
-          </button>
-        </div>
-
-        <h2 id="currentPeriodTitle" class="text-xl font-bold text-slate-800 tracking-tight min-w-[220px]">
-          ---
-        </h2>
+      <div>
+        <h1 class="font-bold text-lg leading-tight text-slate-900 flex items-center gap-2">
+          Agenda Amigia 
+          <span class="bg-blue-50 text-blue-700 border border-blue-200/60 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold">Educação</span>
+        </h1>
+        <p class="text-xs text-slate-500 font-medium">Gestão Integrada de Atendimentos & Agenda Pedagógica</p>
       </div>
     </div>
 
-    <!-- LINHA 2 -->
-    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-
-      <!-- ESQUERDA -->
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="bg-slate-100/80 p-1 rounded-xl border border-slate-200/80 flex flex-wrap text-xs font-semibold">
-          <button
-            data-view="month"
-            onclick="switchView('month')"
-            class="view-btn px-3 py-2 rounded-lg bg-white shadow-xs text-blue-600 font-bold transition"
-          >
-            Mês
-          </button>
-          <button
-            data-view="week"
-            onclick="switchView('week')"
-            class="view-btn px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition"
-          >
-            Semana
-          </button>
-          <button
-            data-view="day"
-            onclick="switchView('day')"
-            class="view-btn px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition"
-          >
-            Dia
-          </button>
-          <button
-            data-view="agenda"
-            onclick="switchView('agenda')"
-            class="view-btn px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition"
-          >
-            Lista
-          </button>
-        </div>
-
-        <a
-          href="https://savio-ferraz.github.io/CRM-Amigia_Educacao/"
-          target="_blank"
-          class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200/80 rounded-xl text-sm font-bold transition flex items-center gap-2"
-        >
-          <i class="fa-solid fa-chart-line text-blue-600"></i>
-          <span>Ir para CRM</span>
-        </a>
+    <!-- LINHA 1 - CONTROLES DE NAVEGAÇÃO TEMPORAL -->
+    <div class="flex flex-wrap items-center gap-3">
+      <button id="btnToday" onclick="goToToday()" class="px-3.5 py-1.5 border border-slate-300/80 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100/80 active:scale-95 transition shadow-xs">Hoje</button>
+      <div class="flex items-center bg-slate-100/80 rounded-xl p-0.5 border border-slate-200/80">
+        <button id="btnPrev" onclick="navigatePeriod(-1)" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white hover:shadow-xs rounded-lg transition active:scale-90"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+        <button id="btnNext" onclick="navigatePeriod(1)" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white hover:shadow-xs rounded-lg transition active:scale-90"><i class="fa-solid fa-chevron-right text-xs"></i></button>
       </div>
-
-      <!-- DIREITA -->
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="flex items-center gap-2 bg-slate-100/80 px-3 py-2 rounded-xl border border-slate-200/80 focus-within:ring-2 focus-within:ring-blue-500/20 transition">
-          <i class="fa-solid fa-user-circle text-slate-400 text-sm"></i>
-          <input
-            type="text"
-            id="globalUserName"
-            placeholder="Seu Nome..."
-            class="bg-transparent text-sm font-semibold text-slate-700 focus:outline-none w-36 md:w-44 placeholder:font-normal placeholder:text-slate-400"
-          >
-        </div>
-
-        <span
-          id="userRoleIndicator"
-          class="inline-flex items-center px-3 py-2 rounded-xl bg-slate-100 text-sm font-bold text-slate-700 border border-slate-200/80"
-        ></span>
-
-        <button
-          id="btnRequests"
-          onclick="openRequestsPanel()"
-          class="hidden px-4 py-2 bg-amber-100 text-amber-900 rounded-xl text-sm font-bold border border-amber-200/70"
-        >
-          Solicitações <span id="pendingCount"></span>
-        </button>
-
-        <button
-          id="btnSignOut"
-          onclick="signOutAgenda()"
-          class="hidden px-4 py-2 border border-slate-300 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100 transition"
-        >
-          Sair
-        </button>
-
-        <button
-          id="btnNewEvent"
-          onclick="openNewEventModal()"
-          class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-sm px-4 py-2.5 rounded-xl shadow-xs hover:shadow-md transition flex items-center gap-2"
-        >
-          <i class="fa-solid fa-plus text-xs"></i>
-          <span>Novo Agendamento</span>
-        </button>
-      </div>
+      <h2 id="currentPeriodTitle" class="text-base font-bold text-slate-800 min-w-[190px] tracking-tight">---</h2>
     </div>
 
-  </div>
-</header>
+    <!-- LINHA 2 - VISUALIZAÇÕES E AÇÕES -->
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="bg-slate-100/80 p-1 rounded-xl border border-slate-200/80 flex text-xs font-semibold">
+        <button data-view="month" onclick="switchView('month')" class="view-btn px-3 py-1.5 rounded-lg bg-white shadow-xs text-blue-600 font-bold transition">Mês</button>
+        <button data-view="week" onclick="switchView('week')" class="view-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Semana</button>
+        <button data-view="day" onclick="switchView('day')" class="view-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Dia</button>
+        <button data-view="agenda" onclick="switchView('agenda')" class="view-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Lista</button>
+      </div>
+
+      <a href="https://savio-ferraz.github.io/CRM-Amigia_Educacao/" target="_blank" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200/80 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+        <i class="fa-solid fa-chart-line text-blue-600"></i>
+        <span>Ir para CRM</span>
+      </a>
+
+      <div class="flex items-center gap-2 bg-slate-100/80 px-3 py-1.5 rounded-xl border border-slate-200/80 focus-within:ring-2 focus-within:ring-blue-500/20 transition">
+        <i class="fa-solid fa-user-circle text-slate-400 text-sm"></i>
+        <input type="text" id="globalUserName" placeholder="Seu Nome..." class="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none w-28 placeholder:font-normal placeholder:text-slate-400">
+      </div>
+
+      <span id="userRoleIndicator" class="text-xs font-bold text-slate-600"></span>
+      <button id="btnRequests" onclick="openRequestsPanel()" class="hidden px-3.5 py-2 bg-amber-100 text-amber-900 rounded-xl text-xs font-bold">Solicitações <span id="pendingCount"></span></button>
+      <button id="btnSignOut" onclick="signOutAgenda()" class="hidden px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-bold">Sair</button>
+      <button id="btnNewEvent" onclick="openNewEventModal()" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs hover:shadow-md transition flex items-center gap-2">
+        <i class="fa-solid fa-plus text-xs"></i>
+        <span>Novo Agendamento</span>
+      </button>
+    </div>
+  </header>
 
   <!-- PAINEL PRINCIPAL -->
   <div class="flex flex-1 overflow-hidden relative">
@@ -359,9 +324,9 @@
       <h3 id="detailTitle" class="text-lg font-bold text-slate-900 mb-4 leading-snug"></h3>
       
       <div class="space-y-3 text-xs text-slate-600 mb-6 bg-slate-50/80 p-4 rounded-2xl border border-slate-200/60">
-        <div class="flex items-center gap-3"><i class="fa-regular fa-calendar text-slate-400 w-4 text-center"></i><span id="detailDate" class="font-semibold text-slate-700"></span></div>
-        <div class="flex items-center gap-3"><i class="fa-regular fa-clock text-slate-400 w-4 text-center"></i><span id="detailTime" class="font-semibold text-slate-700"></span></div>
-        <div class="flex items-center gap-3"><i class="fa-solid fa-user-circle text-blue-600 w-4 text-center"></i><div><span class="text-[10px] text-slate-400 block font-bold uppercase">Agendado por:</span><span id="detailCreatedBy" class="font-bold text-slate-800"></span></div></div>
+        <div class="flex flex-wrap items-center gap-3"><i class="fa-regular fa-calendar text-slate-400 w-4 text-center"></i><span id="detailDate" class="font-semibold text-slate-700"></span></div>
+        <div class="flex flex-wrap items-center gap-3"><i class="fa-regular fa-clock text-slate-400 w-4 text-center"></i><span id="detailTime" class="font-semibold text-slate-700"></span></div>
+        <div class="flex flex-wrap items-center gap-3"><i class="fa-solid fa-user-circle text-blue-600 w-4 text-center"></i><div><span class="text-[10px] text-slate-400 block font-bold uppercase">Agendado por:</span><span id="detailCreatedBy" class="font-bold text-slate-800"></span></div></div>
         <div id="detailDescContainer" class="pt-2 border-t border-slate-200/60"><span class="text-[10px] text-slate-400 block mb-1 font-bold uppercase">Observações:</span><p id="detailDescription" class="text-xs bg-white p-3 rounded-xl border border-slate-200/60 text-slate-700 whitespace-pre-wrap leading-relaxed"></p></div>
       </div>
 
@@ -397,7 +362,9 @@
     try {
       if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
       auth = firebase.auth();
+
       db = firebase.database();
+
       eventsRef = db.ref('compromissos');
       requestsRef = db.ref('solicitacoes_compromissos');
     } catch (error) { console.error('Falha ao iniciar Firebase:', error); }
@@ -465,6 +432,12 @@
 
     // Segurança: a interface não é fonte de autorização. As regras do Realtime Database prevalecem.
     const allowedFields = ['title','date','startTime','endTime','category','description'];
+    // Snapshot canônico dos dados: exige ausência de modificações entre pedido e aprovação.
+    function snapshotEvent(ev) {
+      const data = { ...ev };
+      delete data.id;
+      return JSON.stringify(Object.fromEntries(Object.entries(data).sort(([a],[b]) => a.localeCompare(b))));
+    }
     function escapeHTML(value) {
       return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
@@ -506,7 +479,7 @@
         const snap = await db.ref('usuarios/' + user.uid + '/role').once('value');
         if (generation !== authGeneration || auth.currentUser?.uid !== user.uid) return;
         const role = snap.val();
-        if (role !== 'Diretor' && role !== 'Colaborador') {
+        if (role !== 'Diretor') {
           setLoginError('Sua conta ainda não possui acesso à Agenda.');
           await auth.signOut();
           return;
@@ -515,11 +488,11 @@
         document.getElementById('loginHelp').textContent = 'Entre com sua conta autorizada.';
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('btnSignOut').classList.remove('hidden');
-        document.getElementById('btnRequests').classList.remove('hidden');
+        // Recuperação: aprovação desativada até validar regras de produção.
         document.getElementById('userRoleIndicator').textContent = role;
-        globalUserNameInput.value = user.email?.split('@')[0] || role;
+        globalUserNameInput.value = 'Savio Ferraz';
         globalUserNameInput.readOnly = true;
-        initDataSync(); initRequestsSync();
+        initDataSync(); // Solicitações desativadas na recuperação de produção.
         if (window.crmDraft) {
           openNewEventModal();
           document.getElementById('inputTitle').value = window.crmDraft.title;
@@ -578,7 +551,8 @@
       if (!reason.trim()) throw new Error('O motivo é obrigatório.');
       const payload = {
         solicitanteUid: currentUser.uid, compromissoId: id, tipo: type,
-        status: 'pendente', motivo: reason.trim(), criadoEm: firebase.database.ServerValue.TIMESTAMP
+        status: 'pendente', motivo: reason.trim(), criadoEm: firebase.database.ServerValue.TIMESTAMP,
+        versaoOriginal: snapshotEvent(original)
       };
       if (type === 'editar') {
         payload.alteracoes = {};
@@ -588,7 +562,7 @@
       await requestsRef.push().set(payload);
       alert('Sua solicitação foi enviada ao Diretor.');
     }
-    function openRequestsPanel() { if (!currentUserRole) return; document.getElementById('requestsPanel').classList.remove('hidden'); renderRequests(); }
+    function openRequestsPanel() { if (true) { alert('Aprovações em implantação.'); return; } if (!currentUserRole) return; document.getElementById('requestsPanel').classList.remove('hidden'); renderRequests(); }
     function closeRequestsPanel() { document.getElementById('requestsPanel').classList.add('hidden'); }
     function renderRequests() {
       const list = document.getElementById('requestsList');
@@ -599,8 +573,9 @@
         card.className = 'rounded-xl border border-slate-200 p-4 bg-slate-50';
         const current = events.find(e=>e.id===req.compromissoId);
         const time = Number.isFinite(req.criadoEm) ? new Date(req.criadoEm).toLocaleString('pt-BR') : '-';
+        const legacyNotice = req.status === 'pendente' && !req.versaoOriginal ? '<p class="text-xs font-semibold text-amber-700 mt-2">Pedido anterior à verificação de versão: não pode ser aprovado. Rejeite e solicite novamente.</p>' : '';
         const changes = req.tipo === 'editar' ? '<p class="mt-2 text-xs font-semibold">Alterações solicitadas:</p><pre class="text-xs whitespace-pre-wrap break-words">' + escapeHTML(JSON.stringify(req.alteracoes || {}, null, 2)) + '</pre>' : '';
-        card.innerHTML = `<p class="font-bold text-slate-900">${escapeHTML(req.tipo === 'editar' ? 'Editar' : 'Excluir')} — ${escapeHTML(current?.title || req.compromissoId)}</p><p class="text-xs text-slate-600 mt-1">Status: ${escapeHTML(req.status)} • ${escapeHTML(time)}</p><p class="text-sm mt-2">Motivo: ${escapeHTML(req.motivo)}</p>${changes}`;
+        card.innerHTML = `<p class="font-bold text-slate-900">${escapeHTML(req.tipo === 'editar' ? 'Editar' : 'Excluir')} — ${escapeHTML(current?.title || req.compromissoId)}</p><p class="text-xs text-slate-600 mt-1">Status: ${escapeHTML(req.status)} • ${escapeHTML(time)}</p><p class="text-sm mt-2">Motivo: ${escapeHTML(req.motivo)}</p>${changes}${legacyNotice}`;
         if (currentUserRole === 'Diretor' && req.status === 'pendente') {
           const actions = document.createElement('div'); actions.className = 'flex gap-2 mt-3';
           for (const [decision, caption, klass] of [['aprovado','Aprovar','bg-emerald-600'],['rejeitado','Rejeitar','bg-rose-600']]) {
@@ -620,41 +595,66 @@
         list.appendChild(card);
       }
     }
-    // Transação atômica de protótipo: decisão + efeito + auditoria juntos.
-    // Nota: transação na raiz lê/escreve todo o banco; migrar para backend confiável antes de escalar.
+    // V4 teste: operação multipath atômica após validação do estado atual.
+    // ATENÇÃO: a validação e a gravação não constituem uma transação CAS.
+    // Pode haver corrida entre diretores/abas; NÃO utilizar em produção.
     async function decideRequest(id, decision) {
       requireSession();
       if (currentUserRole !== 'Diretor') throw new Error('Apenas o Diretor pode decidir.');
       if (!['aprovado','rejeitado'].includes(decision)) throw new Error('Decisão inválida.');
-      let failure = 'Solicitação não está pendente ou compromisso não existe.';
-      const auditId = db.ref('auditoria_solicitacoes').push().key;
-      const processedAt = Date.now();
-      const result = await db.ref().transaction(root => {
-        if (!root || !root.solicitacoes_compromissos || !root.solicitacoes_compromissos[id]) return;
-        const req = root.solicitacoes_compromissos[id];
-        if (req.status !== 'pendente') { failure='Solicitação já processada.'; return; }
-        if (req.tipo !== 'editar' && req.tipo !== 'excluir') { failure='Tipo inválido.'; return; }
-        if (typeof req.compromissoId !== 'string' || !root.compromissos?.[req.compromissoId]) { failure='O compromisso original não existe mais.'; return; }
-        if (decision === 'aprovado' && req.tipo === 'editar') {
-          const changes = req.alteracoes;
-          if (!changes || typeof changes !== 'object' || !Object.keys(changes).length || Object.keys(changes).some(k=>!allowedFields.includes(k) || typeof changes[k] !== 'string')) { failure='Alterações inválidas.'; return; }
-          const ev = root.compromissos[req.compromissoId];
-          if (Object.prototype.hasOwnProperty.call(changes,'title') && !changes.title.trim()) { failure='Título vazio.'; return; }
-          Object.assign(ev, changes);
-        } else if (decision === 'aprovado' && req.tipo === 'excluir') {
-          delete root.compromissos[req.compromissoId];
+
+      const requestRef = requestsRef.child(id);
+      const requestSnapshot = await requestRef.once('value');
+      const req = requestSnapshot.val();
+
+      if (!req) throw new Error('Solicitação não encontrada.');
+      if (req.status !== 'pendente') throw new Error('Solicitação já processada.');
+      if (req.tipo !== 'editar' && req.tipo !== 'excluir')
+        throw new Error('Tipo de solicitação inválido.');
+      if (typeof req.compromissoId !== 'string' || !req.compromissoId)
+        throw new Error('Identificador do compromisso inválido.');
+
+      const eventSnapshot = await eventsRef.child(req.compromissoId).once('value');
+      const currentEvent = eventSnapshot.val();
+      const updates = {};
+
+      if (decision === 'aprovado') {
+        if (!currentEvent) throw new Error('O compromisso original não existe mais.');
+        if (typeof req.versaoOriginal !== 'string' ||
+            req.versaoOriginal !== snapshotEvent(currentEvent)) {
+          throw new Error('O compromisso mudou ou o pedido é antigo. Rejeite e solicite novamente.');
         }
-        req.status = decision;
-        // Metadados administrativos ficam no registro de auditoria separado.
-        if (!root.auditoria_solicitacoes) root.auditoria_solicitacoes = {};
-        root.auditoria_solicitacoes[auditId] = {
-          solicitacaoId:id, compromissoId:req.compromissoId, tipo:req.tipo,
-          decisao:decision, diretorUid:currentUser.uid, solicitanteUid:req.solicitanteUid,
-          processadoEm:processedAt
-        };
-        return root;
-      }, undefined, false);
-      if (!result.committed) throw new Error(failure);
+        if (req.tipo === 'editar') {
+          const changes = req.alteracoes;
+          if (!changes || typeof changes !== 'object' || Array.isArray(changes) ||
+              !Object.keys(changes).length ||
+              Object.keys(changes).some(k => !allowedFields.includes(k) ||
+                typeof changes[k] !== 'string')) {
+            throw new Error('Alterações inválidas.');
+          }
+          if (Object.hasOwn(changes, 'title') && !changes.title.trim())
+            throw new Error('Título vazio.');
+          for (const [field, value] of Object.entries(changes)) {
+            updates[`compromissos/${req.compromissoId}/${field}`] = value;
+          }
+        } else {
+          updates[`compromissos/${req.compromissoId}`] = null;
+        }
+      }
+      // Operação multipath: todos os caminhos são gravados ou nenhum é.
+      // A conferência acima NÃO impede concorrência entre a leitura e update.
+      updates[`solicitacoes_compromissos/${id}/status`] = decision;
+      const auditId = db.ref('auditoria_solicitacoes').push().key;
+      updates[`auditoria_solicitacoes/${auditId}`] = {
+        solicitacaoId: id,
+        compromissoId: req.compromissoId,
+        tipo: req.tipo,
+        decisao: decision,
+        diretorUid: currentUser.uid,
+        solicitanteUid: req.solicitanteUid,
+        processadoEm: firebase.database.ServerValue.TIMESTAMP
+      };
+      await db.ref().update(updates);
     }
 
     function switchView(view) {
@@ -983,3 +983,7 @@
   </script>
 </body>
 </html>
+
+
+
+
